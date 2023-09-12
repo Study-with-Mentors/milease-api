@@ -1,4 +1,7 @@
 HELP.md
+application-*.yml
+!application-common.yml
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
