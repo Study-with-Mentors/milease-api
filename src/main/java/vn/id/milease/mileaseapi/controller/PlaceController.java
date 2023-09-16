@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/places")
 @RequiredArgsConstructor
 public class PlaceController {
-    private final String BASE_URL = "/api/places/";
     private final PlaceService placeService;
     @GetMapping
     public ResponseEntity<PageResult<PlaceDto>> searchPlaces(PlaceSearchDto searchDto) {
@@ -26,10 +25,8 @@ public class PlaceController {
     @PostMapping
     public ResponseEntity<Void> addPlace(@RequestBody CreatePlaceDto dto, HttpServletResponse response) {
         PlaceDto result = placeService.addPlace(dto);
-        var location = new StringBuilder()
-                .append(BASE_URL)
-                .append(result.getId());
-        response.addHeader("location", location.toString());
+        String location = "/api/places/" + result.getId();
+        response.addHeader("location", location);
         return  ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

@@ -42,6 +42,7 @@ public class PlaceServiceImpl implements PlaceService {
                 .toList());
         result.setTotalPages(places.getTotalPages());
         result.setTotalCount(places.getTotalElements());
+        result.setCurrentPage(searchDto.getPage());
         return result;
     }
 
