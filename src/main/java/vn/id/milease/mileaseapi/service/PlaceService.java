@@ -12,4 +12,6 @@ public interface PlaceService {
     PlaceDto addPlace(CreatePlaceDto dto);
 
     PlaceDto updatePlace(UpdatePlaceDto dto);
+
+    void deletePlace(long id);
 }

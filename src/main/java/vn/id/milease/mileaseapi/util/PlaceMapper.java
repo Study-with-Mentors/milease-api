@@ -10,8 +10,9 @@ import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
 import java.util.Objects;
 
 public class PlaceMapper {
+
+    //TODO [Dat, P3]: Mapping address, business.
     public static PlaceDto ToDto(Place entity) {
-        //TODO: Mapping address, business.
         var result = PlaceDto.builder()
                 .name(entity.getName())
                 .description(entity.getDescription())

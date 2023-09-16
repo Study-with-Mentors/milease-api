@@ -46,7 +46,7 @@ public class PlaceServiceImpl implements PlaceService {
         return result;
     }
 
-    //TODO: Validating address and business
+    //TODO [Dat, P1]: Validating address and business
     @Override
     public PlaceDto addPlace(CreatePlaceDto dto) {
         var entityToAdd = PlaceMapper.ToEntity(dto);
@@ -55,7 +55,7 @@ public class PlaceServiceImpl implements PlaceService {
         return PlaceMapper.ToDto(entityToAdd);
     }
 
-    //TODO: validate address and business;
+    //TODO [Dat, P1]: Validating address and business
     @Override
     public PlaceDto updatePlace(UpdatePlaceDto dto) {
         var entityToUpdate = placeRepository.findById(dto.getId())
@@ -66,6 +66,18 @@ public class PlaceServiceImpl implements PlaceService {
         entityToUpdate = placeRepository.save(entityToUpdate);
         return PlaceMapper.ToDto(entityToUpdate);
     }
+
+    //TODO [Dat, P4]: real deleting when place is not related to anything
+    @Override
+    public void deletePlace(long id) {
+        var entityToDelete = placeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Place.class, id));
+        if(entityToDelete.getStatus() == PlaceStatus.REMOVE)
+            throw new NotFoundException(Place.class, id);
+        entityToDelete.setStatus(PlaceStatus.REMOVE);
+        placeRepository.save(entityToDelete);
+    }
+
     private int calculateDisplayIndex() {
         var listFind = placeRepository.findAll()
                 .stream()
