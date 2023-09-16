@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import vn.id.milease.mileaseapi.model.entity.Address;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
+import vn.id.milease.mileaseapi.model.entity.step.Step;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,4 +35,6 @@ public class Place extends BaseEntity {
     @OneToOne
     @JoinColumn
     private Address address;
+    @OneToMany(mappedBy = "place")
+    private List<Step> steps;
 }
