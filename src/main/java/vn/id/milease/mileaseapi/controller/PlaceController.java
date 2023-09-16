@@ -31,7 +31,7 @@ public class PlaceController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PlaceDto> updatePlace(@RequestParam(name = "id") long id, @RequestBody UpdatePlaceDto dto) {
+    public ResponseEntity<PlaceDto> updatePlace(@PathVariable(name = "id") long id, @RequestBody UpdatePlaceDto dto) {
         dto.setId(id);
         PlaceDto updated = placeService.updatePlace(dto);
         return new ResponseEntity<>(updated, HttpStatus.OK);
@@ -39,7 +39,7 @@ public class PlaceController {
 
     //TODO: create soft delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePlace(@RequestParam(name = "id") long id) {
+    public ResponseEntity<Void> deletePlace(@PathVariable(name = "id") long id) {
         placeService.deletePlace(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
