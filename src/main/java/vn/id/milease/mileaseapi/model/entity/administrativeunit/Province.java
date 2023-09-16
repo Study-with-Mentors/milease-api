@@ -3,6 +3,7 @@ package vn.id.milease.mileaseapi.model.entity.administrativeunit;
 import lombok.Getter;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -22,11 +23,11 @@ public class Province {
     private String fullNameEn;
     private String codeName;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private AdministrativeUnit administrativeUnit;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private AdministrativeRegion administrativeRegion;
 

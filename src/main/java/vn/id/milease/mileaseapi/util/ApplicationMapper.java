@@ -18,15 +18,21 @@ public class ApplicationMapper {
     }
 
     public ProvinceDto provinceToDto(Province province) {
-        return mapper.map(province, ProvinceDto.class);
+        return mapper.typeMap(Province.class, ProvinceDto.class)
+                .addMappings(map -> map.skip(ProvinceDto::setDistricts))
+                .map(province);
     }
 
     public ProvinceDto provinceToDto(Province province, boolean withDistricts) {
-        return (withDistricts) ?
-                mapper.typeMap(Province.class, ProvinceDto.class)
-                        .addMapping(prov -> prov.getDistricts().stream().map(this::districtToDto).toList(), ProvinceDto::setDistricts)
-                        .map(province) :
-                provinceToDto(province);
+        ProvinceDto dto = provinceToDto(province);
+        if (withDistricts) {
+            dto.setDistricts(
+                    province.getDistricts().stream()
+                            .map(this::districtToDto)
+                            .toList()
+            );
+        }
+        return dto;
     }
 
     public DistrictDto districtToDto(District district) {
