@@ -14,9 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @ToString
-public class Step {
-    @EmbeddedId
-    private StepId stepId;
+public class Step extends BaseEntity{
     private LocalDateTime start;
     private LocalDateTime end;
     private StepType type;
@@ -24,11 +22,9 @@ public class Step {
     private Float duration;
     private Float distance;
     @ManyToOne
-    @MapsId("planId")
+    @JoinColumn
     private Plan plan;
     @ManyToOne
-    @MapsId("placeId")
+    @JoinColumn
     private Place place;
-    @Version
-    private Long version;
 }

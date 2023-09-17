@@ -37,7 +37,6 @@ public class PlaceController {
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
-    //TODO: create soft delete
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlace(@PathVariable(name = "id") long id) {
         placeService.deletePlace(id);
