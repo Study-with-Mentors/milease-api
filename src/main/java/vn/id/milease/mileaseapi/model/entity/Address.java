@@ -6,11 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.id.milease.mileaseapi.model.entity.administrativeunit.Ward;
+import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.user.User;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 @Entity
 @NoArgsConstructor
@@ -28,4 +30,7 @@ public class Address extends BaseEntity {
     @ManyToOne
     @JoinColumn
     private User user;
+
+    @OneToOne
+    private Place place;
 }
