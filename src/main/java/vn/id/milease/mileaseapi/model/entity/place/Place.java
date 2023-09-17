@@ -20,14 +20,14 @@ import java.util.List;
 public class Place extends BaseEntity {
     @Column(nullable = false)
     private String name;
-    private float priceLower;
-    private float priceUpper;
+    private Float priceLower;
+    private Float priceUpper;
     private LocalDateTime open;
     private LocalDateTime close;
     private String description;
     @JsonIgnore
     private int displayIndex;
-    private float averageDuration;
+    private Float averageDuration;
     @Enumerated(EnumType.STRING)
     private PlaceType type;
     @Enumerated(EnumType.STRING)

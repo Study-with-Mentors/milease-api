@@ -20,9 +20,9 @@ public class Step {
     private LocalDateTime start;
     private LocalDateTime end;
     private StepType type;
-    private int index;
-    private float duration;
-    private float distance;
+    private Integer index;
+    private Float duration;
+    private Float distance;
     @ManyToOne
     @MapsId("planId")
     private Plan plan;
@@ -30,5 +30,5 @@ public class Step {
     @MapsId("placeId")
     private Place place;
     @Version
-    private long version;
+    private Long version;
 }

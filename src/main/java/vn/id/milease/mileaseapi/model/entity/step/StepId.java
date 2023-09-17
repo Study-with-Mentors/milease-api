@@ -10,6 +10,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class StepId implements Serializable {
-    private long planId;
-    private long placeId;
+    private Long planId;
+    private Long placeId;
 }
