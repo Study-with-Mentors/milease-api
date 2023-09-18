@@ -17,7 +17,7 @@ import vn.id.milease.mileaseapi.model.exception.ConflictException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
 import vn.id.milease.mileaseapi.repository.PlaceRepository;
 import vn.id.milease.mileaseapi.service.PlaceService;
-import vn.id.milease.mileaseapi.util.PlaceMapper;
+import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
 
 import javax.transaction.Transactional;
 import java.util.Random;
@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class PlaceServiceImpl implements PlaceService {
     private final PlaceRepository placeRepository;
+    private final PlaceMapper placeMapper;
     @Override
     public PageResult<PlaceDto> getPlaces(PlaceSearchDto searchDto) {
         var predicate = placeRepository.prepareSearchPredicate(searchDto);
@@ -38,7 +39,7 @@ public class PlaceServiceImpl implements PlaceService {
         Page<Place> places = placeRepository.findAll(predicate, pageRequest);
         PageResult<PlaceDto> result = new PageResult<>();
         result.setValues(places.get()
-                .map(PlaceMapper::ToDto)
+                .map(placeMapper::toDto)
                 .toList());
         result.setTotalPages(places.getTotalPages());
         result.setTotalCount(places.getTotalElements());
@@ -49,10 +50,10 @@ public class PlaceServiceImpl implements PlaceService {
     //TODO [Dat, P1]: Validating address and business
     @Override
     public PlaceDto addPlace(CreatePlaceDto dto) {
-        var entityToAdd = PlaceMapper.ToEntity(dto);
+        var entityToAdd = placeMapper.toEntity(dto);
         entityToAdd.setDisplayIndex(calculateDisplayIndex());
         entityToAdd = placeRepository.save(entityToAdd);
-        return PlaceMapper.ToDto(entityToAdd);
+        return placeMapper.toDto(entityToAdd);
     }
 
     //TODO [Dat, P1]: Validating address and business
@@ -61,10 +62,10 @@ public class PlaceServiceImpl implements PlaceService {
         var entityToUpdate = placeRepository.findById(dto.getId())
                 .orElseThrow(() -> new NotFoundException(Place.class, dto.getId()));
         if(entityToUpdate.getStatus() == PlaceStatus.REMOVE)
-            throw new ConflictException(Place.class, ActionConflict.UPDATE, "Cannot update place that has been removed", null);
-        PlaceMapper.ToEntity(dto, entityToUpdate);
+            throw new ConflictException(Place.class, ActionConflict.UPDATE, "Cannot update place that has been removed");
+        placeMapper.toEntity(dto, entityToUpdate);
         entityToUpdate = placeRepository.save(entityToUpdate);
-        return PlaceMapper.ToDto(entityToUpdate);
+        return placeMapper.toDto(entityToUpdate);
     }
 
     //TODO [Dat, P4]: real deleting when place is not related to anything
@@ -92,6 +93,6 @@ public class PlaceServiceImpl implements PlaceService {
                 return index;
             countConflict++;
         }
-        throw new ConflictException(Place.class, ActionConflict.CREATE, "This is our fault, cannot create displayIndex", null);
+        throw new ConflictException(Place.class, ActionConflict.CREATE, "This is our fault, cannot create displayIndex");
     }
 }
