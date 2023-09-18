@@ -15,7 +15,7 @@ public class PlaceSearchDto extends BaseSearchDto {
     private String name = "";
     private List<PlaceType> types;
     private PlaceStatus status = PlaceStatus.AVAILABLE;
-    private OrderBy orderBy;
+    private OrderBy orderBy = OrderBy.DISPLAY_INDEX;
     private float durationFrom;
     private float durationTo;
 
