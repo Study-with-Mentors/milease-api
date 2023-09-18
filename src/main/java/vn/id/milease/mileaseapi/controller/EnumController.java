@@ -21,7 +21,7 @@ public class EnumController {
     }
 
     @GetMapping("/places/orderby")
-    public PlaceSearchDto.OrderBy[] getPlaceOrdering() {
-        return PlaceSearchDto.OrderBy.values();
+    public PlaceSearchDto.PlaceProperty[] getPlaceOrdering() {
+        return PlaceSearchDto.PlaceProperty.values();
     }
 }

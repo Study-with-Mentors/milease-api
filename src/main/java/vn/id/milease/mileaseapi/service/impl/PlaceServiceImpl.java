@@ -34,7 +34,7 @@ public class PlaceServiceImpl implements PlaceService {
         PageRequest pageRequest = PageRequest.of(
                 searchDto.getPage(),
                 searchDto.getPageSize(),
-                Sort.by(searchDto.getDirection(), searchDto.getOrderBy().getNameOfProperty()));
+                Sort.by(searchDto.getDirection(), searchDto.getOrderBy()));
         Page<Place> places = placeRepository.findAll(predicate, pageRequest);
         PageResult<PlaceDto> result = new PageResult<>();
         result.setValues(places.get()
