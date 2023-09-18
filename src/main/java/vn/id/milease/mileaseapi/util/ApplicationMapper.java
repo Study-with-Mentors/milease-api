@@ -1,5 +1,6 @@
 package vn.id.milease.mileaseapi.util;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import vn.id.milease.mileaseapi.util.mapper.PlanMapper;
 
 @Component
 @RequiredArgsConstructor
+@Getter
 public class ApplicationMapper {
     private final ModelMapper mapper;
     private final PlanMapper planMapper;

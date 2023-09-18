@@ -25,4 +25,5 @@ public class Plan extends BaseEntity {
     private PlanStatus status;
     @OneToMany(mappedBy = "plan")
     private List<Step> steps;
+    // TODO [Duy, P2] Missing province
 }

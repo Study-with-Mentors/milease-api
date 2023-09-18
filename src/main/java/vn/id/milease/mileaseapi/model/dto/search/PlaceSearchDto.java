@@ -12,6 +12,7 @@ import java.util.function.Function;
 @Getter
 @Setter
 public class PlaceSearchDto extends BaseSearchDto {
+    // TODO [Dat, P3] why search can filter by id
     private long id;
     private String name = "";
     private List<PlaceType> types;
