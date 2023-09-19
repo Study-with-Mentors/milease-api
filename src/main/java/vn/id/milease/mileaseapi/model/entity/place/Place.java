@@ -5,6 +5,7 @@ import lombok.*;
 import vn.id.milease.mileaseapi.model.entity.Address;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
 import vn.id.milease.mileaseapi.model.entity.step.Step;
+import vn.id.milease.mileaseapi.model.entity.user.Business;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -35,6 +36,9 @@ public class Place extends BaseEntity {
     @OneToOne
     @JoinColumn
     private Address address;
+    @ManyToOne
+    @JoinColumn(name = "business_id")
+    private Business business;
     @OneToMany(mappedBy = "place")
     private List<Step> steps;
 }

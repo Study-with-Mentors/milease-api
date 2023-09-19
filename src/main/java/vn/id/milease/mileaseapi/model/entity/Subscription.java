@@ -9,7 +9,11 @@ import vn.id.milease.mileaseapi.model.entity.user.User;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import java.sql.Date;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -17,10 +21,14 @@ import javax.persistence.ManyToOne;
 @Builder
 @Getter
 @Setter
-public class Phone extends BaseEntity {
-    private String number;
+public class Subscription extends BaseEntity {
+    private Date startDate;
+    private Date endDate;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "account_id")
     private User user;
+
+    @OneToMany(mappedBy = "subscription")
+    private List<Invoice> invoices;
 }

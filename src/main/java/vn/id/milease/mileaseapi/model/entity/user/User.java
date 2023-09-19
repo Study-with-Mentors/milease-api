@@ -8,14 +8,19 @@ import lombok.Setter;
 import vn.id.milease.mileaseapi.model.entity.Address;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
 import vn.id.milease.mileaseapi.model.entity.Phone;
+import vn.id.milease.mileaseapi.model.entity.Subscription;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
 import java.util.List;
 
 @Entity
+@Table(name = "account")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -24,10 +29,23 @@ import java.util.List;
 public class User extends BaseEntity {
     private String email;
     private String password;
-    private String name;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
+    @OneToOne(mappedBy = "user")
+    @PrimaryKeyJoinColumn
+    private Traveler traveler;
+
+    @OneToOne(mappedBy = "user")
+    @PrimaryKeyJoinColumn
+    private Business business;
+
+    @OneToOne(mappedBy = "user")
+    private Subscription subscription;
 
     @OneToMany(mappedBy = "user")
     private List<Address> addresses;

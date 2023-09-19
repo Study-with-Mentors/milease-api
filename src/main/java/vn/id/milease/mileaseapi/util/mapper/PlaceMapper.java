@@ -1,18 +1,19 @@
-package vn.id.milease.mileaseapi.util;
+package vn.id.milease.mileaseapi.util.mapper;
 
 import com.querydsl.core.util.StringUtils;
+import org.springframework.stereotype.Component;
 import vn.id.milease.mileaseapi.model.dto.PlaceDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreatePlaceDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlaceDto;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
-import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
 
 import java.util.Objects;
 
-public class PlaceMapper {
+@Component
+public class PlaceMapper implements Mapper<Place, PlaceDto, CreatePlaceDto, UpdatePlaceDto> {
 
     //TODO [Dat, P3]: Mapping address, business.
-    public static PlaceDto ToDto(Place entity) {
+    public PlaceDto toDto(Place entity) {
         var result = PlaceDto.builder()
                 .name(entity.getName())
                 .description(entity.getDescription())
@@ -28,7 +29,7 @@ public class PlaceMapper {
         return result;
     }
 
-    public static Place ToEntity(CreatePlaceDto dto) {
+    public Place toEntity(CreatePlaceDto dto) {
         return Place.builder()
                 .averageDuration(dto.getAverageDuration())
                 .close(dto.getClose())
@@ -40,7 +41,7 @@ public class PlaceMapper {
                 .build();
     }
 
-    public static void ToEntity(UpdatePlaceDto dto, Place existed) {
+    public void toEntity(UpdatePlaceDto dto, Place existed) {
         if(!StringUtils.isNullOrEmpty(dto.getDescription()))
             existed.setDescription(dto.getDescription());
         if(!StringUtils.isNullOrEmpty(dto.getName()))
