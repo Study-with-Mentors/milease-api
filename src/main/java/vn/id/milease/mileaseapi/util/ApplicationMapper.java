@@ -1,21 +1,21 @@
 package vn.id.milease.mileaseapi.util;
 
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import vn.id.milease.mileaseapi.model.dto.DistrictDto;
 import vn.id.milease.mileaseapi.model.dto.ProvinceDto;
 import vn.id.milease.mileaseapi.model.entity.administrativeunit.District;
 import vn.id.milease.mileaseapi.model.entity.administrativeunit.Province;
+import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
+import vn.id.milease.mileaseapi.util.mapper.PlanMapper;
 
 @Component
+@RequiredArgsConstructor
 public class ApplicationMapper {
     private final ModelMapper mapper;
-
-    @Autowired
-    public ApplicationMapper(ModelMapper mapper) {
-        this.mapper = mapper;
-    }
+    private final PlanMapper planMapper;
+    private final PlaceMapper placeMapper;
 
     public ProvinceDto provinceToDto(Province province) {
         return mapper.typeMap(Province.class, ProvinceDto.class)
