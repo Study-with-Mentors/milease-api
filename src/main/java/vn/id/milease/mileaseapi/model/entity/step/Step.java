@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @ToString
 public class Step extends BaseEntity{
+    // TODO [Duy, P1] : change this to linked list
     private LocalDateTime start;
     private LocalDateTime end;
     private StepType type;

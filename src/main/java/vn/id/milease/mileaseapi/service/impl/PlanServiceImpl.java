@@ -26,7 +26,14 @@ public class PlanServiceImpl implements PlanService {
     private final ApplicationMapper mapper;
 
     @Override
+    public PlanDto getPlanById(long id) {
+        // TODO [Duy, P1] check user permission
+        return mapper.getPlanMapper().toDto(getPlan(id));
+    }
+
+    @Override
     public PageResult<PlanDto> getPlans(PlanSearchDto searchDto) {
+        // TODO [Duy, P1] check user permission
         var predicate = planRepository.prepareSearchPredicate(searchDto);
         PageRequest pageRequest = ServiceUtil.preparePageRequest(searchDto);
         Page<Plan> plans = planRepository.findAll(predicate, pageRequest);
@@ -35,6 +42,7 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     public PlanDto addPlan(CreatePlanDto dto) {
+        // TODO [Duy, P1] check user permission
         Plan entity = mapper.getPlanMapper().toEntity(dto);
         // TODO [Duy, P2] validate that the start must be after today and end date must be after start date
         entity.setId(0L);
@@ -44,6 +52,7 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     public PlanDto updatePlan(UpdatePlanDto dto) {
+        // TODO [Duy, P1] check user permission
         Plan entity = getPlan(dto.getId());
         // TODO [Duy, P2] validate status
         mapper.getPlanMapper().toEntity(dto, entity);
@@ -53,12 +62,13 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     public void deletePlan(long id) {
+        // TODO [Duy, P1] check user permission
         var entity = getPlan(id);
         // TODO [Duy, P1] improve this
         planRepository.delete(entity);
     }
 
-    private Plan getPlan(long id) {
+    public Plan getPlan(long id) {
         return planRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Plan.class, id));
     }

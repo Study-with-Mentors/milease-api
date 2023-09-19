@@ -11,6 +11,7 @@ import vn.id.milease.mileaseapi.model.dto.search.PlaceSearchDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlaceDto;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
+import vn.id.milease.mileaseapi.model.entity.plan.Plan;
 import vn.id.milease.mileaseapi.model.exception.ActionConflict;
 import vn.id.milease.mileaseapi.model.exception.ConflictException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class PlaceServiceImpl implements PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceMapper placeMapper;
+    private final Random random = new Random();
 
     @Override
     public PageResult<PlaceDto> getPlaces(PlaceSearchDto searchDto) {
@@ -79,12 +81,16 @@ public class PlaceServiceImpl implements PlaceService {
         int numberOfConflict = 10;
         int countConflict = 0;
         while (countConflict < numberOfConflict) {
-            Random random = new Random();
             int index = random.nextInt(Integer.MAX_VALUE);
             if (!listFind.contains(index))
                 return index;
             countConflict++;
         }
         throw new ConflictException(Place.class, ActionConflict.CREATE, "This is our fault, cannot create displayIndex");
+    }
+
+    public Place getPlace(long id) {
+        return placeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Place.class, id));
     }
 }

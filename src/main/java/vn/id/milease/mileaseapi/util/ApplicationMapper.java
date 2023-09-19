@@ -10,6 +10,7 @@ import vn.id.milease.mileaseapi.model.entity.administrativeunit.District;
 import vn.id.milease.mileaseapi.model.entity.administrativeunit.Province;
 import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
 import vn.id.milease.mileaseapi.util.mapper.PlanMapper;
+import vn.id.milease.mileaseapi.util.mapper.StepMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class ApplicationMapper {
     private final ModelMapper mapper;
     private final PlanMapper planMapper;
     private final PlaceMapper placeMapper;
+    private final StepMapper stepMapper;
 
     public ProvinceDto provinceToDto(Province province) {
         return mapper.typeMap(Province.class, ProvinceDto.class)
