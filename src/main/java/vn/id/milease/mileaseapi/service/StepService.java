@@ -10,7 +10,7 @@ public interface StepService {
     StepDto getStepById(long id);
     // TODO [Duy, P3] Maybe with some filter
     List<StepDto> getStepByPlanId(long planId);
-
+    void swapStep(long step1Id, long step2Id);
     StepDto addStep(CreateStepDto dto);
     StepDto updateStep(UpdateStepDto dto);
     void deleteStep(long id);

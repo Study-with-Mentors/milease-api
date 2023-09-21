@@ -6,10 +6,7 @@ import lombok.ToString;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
 import vn.id.milease.mileaseapi.model.entity.step.Step;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,4 +23,7 @@ public class Plan extends BaseEntity {
     @OneToMany(mappedBy = "plan")
     private List<Step> steps;
     // TODO [Duy, P2] Missing province
+    @OneToOne
+    private Step firstStep;
+    // TODO [Duy, P1] Missing user
 }

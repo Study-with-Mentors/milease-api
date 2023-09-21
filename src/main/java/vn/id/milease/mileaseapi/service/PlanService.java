@@ -18,4 +18,6 @@ public interface PlanService {
     void deletePlan(long id);
 
     Plan getPlan(long id);
+
+    void checkCurrentUserPermission(Plan plan);
 }

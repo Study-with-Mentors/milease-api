@@ -5,18 +5,16 @@ import lombok.Getter;
 import lombok.Setter;
 import vn.id.milease.mileaseapi.model.entity.step.StepType;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 public class CreateStepDto {
+    // TODO [Duy, P2] validation
     @JsonIgnore
     private long planId;
+    private Long prevStepId;
     private long placeId;
-    private LocalDateTime start;
-    private LocalDateTime end;
+    // TODO [Duy, P3] further specify if we can create/update step type
     private StepType type;
-    private Integer index;
     private Float duration;
     private Float distance;
 }
