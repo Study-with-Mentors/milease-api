@@ -16,6 +16,7 @@ import javax.persistence.*;
 public class Step extends BaseEntity {
     private StepType type;
     private Float duration;
+    // TODO [Duy, P3] distance should be refactor (maybe client will call map API to figure out)
     private Float distance;
     @ManyToOne
     @JoinColumn

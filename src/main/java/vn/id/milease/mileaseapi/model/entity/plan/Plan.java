@@ -21,9 +21,9 @@ public class Plan extends BaseEntity {
     private String name;
     @Enumerated(EnumType.STRING)
     private PlanStatus status;
-    @OneToMany(mappedBy = "plan")
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.REMOVE)
     private List<Step> steps;
-    // TODO [Duy, P2] Missing province
+    // TODO [Duy, P3] Missing province
     @OneToOne
     private Step firstStep;
     @ManyToOne

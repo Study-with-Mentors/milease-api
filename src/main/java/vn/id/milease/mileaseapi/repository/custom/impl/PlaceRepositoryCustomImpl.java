@@ -16,20 +16,20 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom {
         QPlace place = QPlace.place;
         BooleanBuilder preBuilder = new BooleanBuilder();
         preBuilder.and(place.status.eq(search.getStatus()));
-        if(search.getId() > 0) {
+        if (search.getId() > 0) {
             preBuilder.and(place.id.eq(search.getId()));
         }
-        if(!StringUtils.isNullOrEmpty(search.getName())) {
+        if (!StringUtils.isNullOrEmpty(search.getName())) {
             preBuilder.and(place.name.containsIgnoreCase(search.getName()));
         }
-        if(search.getDurationFrom() > 0 && search.getDurationTo() > 0 && search.getDurationFrom() > search.getDurationTo()) {
+        if (search.getDurationFrom() > 0 && search.getDurationTo() > 0 && search.getDurationFrom() > search.getDurationTo()) {
             preBuilder.and(place.averageDuration.between(search.getDurationFrom(), search.getDurationTo()));
         }
-        if(search.getTypes() != null &&!search.getTypes().isEmpty()) {
+        if (search.getTypes() != null && !search.getTypes().isEmpty()) {
             preBuilder.and(place.type.in(search.getTypes()));
         }
         Predicate pre = preBuilder.getValue();
-        if(pre == null)
+        if (pre == null)
             pre = Expressions.asBoolean(true).isTrue();
         return pre;
     }

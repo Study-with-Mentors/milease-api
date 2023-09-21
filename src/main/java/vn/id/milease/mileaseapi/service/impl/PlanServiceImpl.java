@@ -51,8 +51,8 @@ public class PlanServiceImpl implements PlanService {
     @Override
     public PlanDto addPlan(CreatePlanDto dto) {
         checkDatetime(dto.getStart(), dto.getEnd());
-        // TODO [Duy, P1] link user when create new plan
         Plan entity = mapper.getPlanMapper().toEntity(dto);
+        entity.setUser(userService.getCurrentUser());
         entity.setId(0L);
         entity = planRepository.save(entity);
         return mapper.getPlanMapper().toDto(entity);
@@ -82,7 +82,7 @@ public class PlanServiceImpl implements PlanService {
     public void deletePlan(long id) {
         Plan entity = getPlan(id);
         checkCurrentUserPermission(entity);
-        // TODO [Duy, P1] improve this
+        // TODO [Duy, P3] improve this
         planRepository.delete(entity);
     }
 
