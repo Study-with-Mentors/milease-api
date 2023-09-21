@@ -11,6 +11,8 @@ import vn.id.milease.mileaseapi.model.dto.search.PlanSearchDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlanDto;
 import vn.id.milease.mileaseapi.model.entity.plan.Plan;
 import vn.id.milease.mileaseapi.model.entity.user.User;
+import vn.id.milease.mileaseapi.model.exception.ActionConflict;
+import vn.id.milease.mileaseapi.model.exception.ArgumentsException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
 import vn.id.milease.mileaseapi.repository.PlanRepository;
 import vn.id.milease.mileaseapi.service.PlanService;
@@ -19,6 +21,7 @@ import vn.id.milease.mileaseapi.service.util.ServiceUtil;
 import vn.id.milease.mileaseapi.util.ApplicationMapper;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Service
@@ -46,9 +49,9 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     public PlanDto addPlan(CreatePlanDto dto) {
+        checkDatetime(dto.getStart(), dto.getEnd());
         // TODO [Duy, P1] link user when create new plan
         Plan entity = mapper.getPlanMapper().toEntity(dto);
-        // TODO [Duy, P2] validate that the start must be after today and end date must be after start date
         entity.setId(0L);
         entity = planRepository.save(entity);
         return mapper.getPlanMapper().toDto(entity);
@@ -56,12 +59,22 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     public PlanDto updatePlan(UpdatePlanDto dto) {
+        checkDatetime(dto.getStart(), dto.getEnd());
         Plan entity = getPlan(dto.getId());
         checkCurrentUserPermission(entity);
         // TODO [Duy, P2] validate status
         mapper.getPlanMapper().toEntity(dto, entity);
         entity = planRepository.save(entity);
         return mapper.getPlanMapper().toDto(entity);
+    }
+
+    private void checkDatetime(LocalDateTime dto, LocalDateTime dto1) {
+        if (!dto.isAfter(LocalDateTime.now())) {
+            throw new ArgumentsException(Plan.class, ActionConflict.CREATE, "Start time must be after now");
+        }
+        if (!dto.isBefore(dto1)) {
+            throw new ArgumentsException(Plan.class, ActionConflict.CREATE, "Start time cannot be after end time");
+        }
     }
 
     @Override

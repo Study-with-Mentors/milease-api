@@ -122,7 +122,6 @@ public class StepServiceImpl implements StepService {
 
     @Override
     public StepDto updateStep(UpdateStepDto dto) {
-        // TODO [Duy, P1] update after steps information about duration, time,...
         Step step = getStep(dto.getId());
         planService.checkCurrentUserPermission(step.getPlan());
         mapper.getStepMapper().toEntity(dto, step);
