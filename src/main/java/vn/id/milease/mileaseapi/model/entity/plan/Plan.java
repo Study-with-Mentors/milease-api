@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
 import vn.id.milease.mileaseapi.model.entity.step.Step;
+import vn.id.milease.mileaseapi.model.entity.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -25,5 +26,7 @@ public class Plan extends BaseEntity {
     // TODO [Duy, P2] Missing province
     @OneToOne
     private Step firstStep;
-    // TODO [Duy, P1] Missing user
+    @ManyToOne
+    @JoinColumn
+    private User user;
 }

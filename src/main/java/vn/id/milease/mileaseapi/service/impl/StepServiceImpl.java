@@ -48,6 +48,7 @@ public class StepServiceImpl implements StepService {
 
     @Override
     public void swapStep(long step1Id, long step2Id) {
+        // TODO [Duy, P2]: test adjacent node, 1 node in between, 2 node in between, null head, null tail,...
         if (step1Id == step2Id) {
             throw new ConflictException("Cannot swap the same step");
         }
@@ -58,9 +59,39 @@ public class StepServiceImpl implements StepService {
         }
         planService.checkCurrentUserPermission(step1.getPlan());
 
-        linkStep(step1, step2.getPreviousStep(), step2.getNextStep());
-        linkStep(step2, step1.getPreviousStep(), step1.getNextStep());
-        // TODO: bug when step1 and step2 is adjacent
+        if (step1.getNextStep().getId().equals(step2.getId()) || step1.getPreviousStep().getId().equals(step2.getId())) {
+            // adjacent node case: P <-> A(1) <-> B(2) <-> N
+            // we want to swap A and B
+
+            // swap the node for case P <-> B(2) <-> A(1) <-> N
+            if (step1.getPreviousStep().getId().equals(step2.getId())) {
+                Step tmp = step1;
+                step1 = step2;
+                step2 = tmp;
+            }
+
+            // set link between A and N
+            step1.setNextStep(step2.getNextStep());
+            if (step2.getNextStep() != null)
+                step2.getNextStep().setPreviousStep(step1);
+
+            // set link between B and P
+            step2.setPreviousStep(step1.getPreviousStep());
+            if (step1.getPreviousStep() != null)
+                step1.getPreviousStep().setNextStep(step2);
+
+            // swap link between A and B
+            step1.setPreviousStep(step2);
+            step2.setNextStep(step1);
+
+        } else {
+            // case there is node in the middle P <-> A <-> C <-> B <-> N
+            // map A to C and N, vice versa
+            linkStep(step1, step2.getPreviousStep(), step2.getNextStep());
+            // map B to C and P, vice versa
+            linkStep(step2, step1.getPreviousStep(), step1.getNextStep());
+        }
+
         stepRepository.save(step1);
         stepRepository.save(step2);
     }

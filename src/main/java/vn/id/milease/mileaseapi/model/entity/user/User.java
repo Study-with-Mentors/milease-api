@@ -9,6 +9,7 @@ import vn.id.milease.mileaseapi.model.entity.Address;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
 import vn.id.milease.mileaseapi.model.entity.Phone;
 import vn.id.milease.mileaseapi.model.entity.Subscription;
+import vn.id.milease.mileaseapi.model.entity.plan.Plan;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -52,4 +53,7 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<Phone> phones;
+
+    @OneToMany(mappedBy = "user")
+    private List<Plan> plans;
 }

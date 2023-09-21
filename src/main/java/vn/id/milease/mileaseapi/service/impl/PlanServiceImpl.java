@@ -13,6 +13,7 @@ import vn.id.milease.mileaseapi.model.entity.plan.Plan;
 import vn.id.milease.mileaseapi.model.entity.user.User;
 import vn.id.milease.mileaseapi.model.exception.ActionConflict;
 import vn.id.milease.mileaseapi.model.exception.ArgumentsException;
+import vn.id.milease.mileaseapi.model.exception.ForbiddenException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
 import vn.id.milease.mileaseapi.repository.PlanRepository;
 import vn.id.milease.mileaseapi.service.PlanService;
@@ -88,7 +89,9 @@ public class PlanServiceImpl implements PlanService {
     @Override
     public void checkCurrentUserPermission(Plan plan) {
         User user = userService.getCurrentUser();
-        // TODO [Duy, P1] Check user permission
+        if (!plan.getUser().getId().equals(user.getId())) {
+            throw new ForbiddenException(Plan.class, user.getId(), plan.getId());
+        }
     }
 
     public Plan getPlan(long id) {
