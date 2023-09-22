@@ -12,7 +12,6 @@ import java.util.function.Function;
 @Getter
 @Setter
 public class PlaceSearchDto extends BaseSearchDto {
-    private long id;
     private String name = "";
     private List<PlaceType> types;
     private PlaceStatus status = PlaceStatus.AVAILABLE;

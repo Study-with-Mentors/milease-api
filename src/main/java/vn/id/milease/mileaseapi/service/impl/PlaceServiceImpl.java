@@ -20,6 +20,7 @@ import vn.id.milease.mileaseapi.service.PlaceService;
 import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,12 @@ public class PlaceServiceImpl implements PlaceService {
             throw new NotFoundException(Place.class, id);
         entityToDelete.setStatus(PlaceStatus.REMOVE);
         placeRepository.save(entityToDelete);
+    }
+
+    @Override
+    public List<PlaceDto> getPlacesByIds(List<Long> ids) {
+        var result = placeRepository.findByIds(ids);
+        return result.stream().map(placeMapper::toDto).toList();
     }
 
     private int calculateDisplayIndex() {

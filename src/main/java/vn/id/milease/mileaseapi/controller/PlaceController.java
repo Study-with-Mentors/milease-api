@@ -11,6 +11,7 @@ import vn.id.milease.mileaseapi.model.dto.update.UpdatePlaceDto;
 import vn.id.milease.mileaseapi.service.PlaceService;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @RestController
 @RequestMapping("/places")
@@ -22,6 +23,10 @@ public class PlaceController {
         return new ResponseEntity<>(placeService.getPlaces(searchDto), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<List<PlaceDto>> GetPlacesByIds(List<Long> ids) {
+        return new ResponseEntity<>(placeService.getPlacesByIds(ids), HttpStatus.OK);
+    }
     @PostMapping
     public ResponseEntity<Void> addPlace(@RequestBody CreatePlaceDto dto, HttpServletResponse response) {
         PlaceDto result = placeService.addPlace(dto);
