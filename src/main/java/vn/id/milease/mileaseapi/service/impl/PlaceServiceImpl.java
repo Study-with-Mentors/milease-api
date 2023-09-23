@@ -1,6 +1,7 @@
 package vn.id.milease.mileaseapi.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.id.GUIDGenerator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,7 +21,6 @@ import vn.id.milease.mileaseapi.service.PlaceService;
 import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
 
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -81,9 +81,10 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     @Override
-    public List<PlaceDto> getPlacesByIds(List<Long> ids) {
-        var result = placeRepository.findByIds(ids);
-        return result.stream().map(placeMapper::toDto).toList();
+    public PlaceDto getPlacesById(long id) {
+        var result = placeRepository.getPlaceById(id)
+                .orElseThrow(() -> new NotFoundException(Place.class, id));
+        return placeMapper.toDto(result);
     }
 
     private int calculateDisplayIndex() {
@@ -94,7 +95,7 @@ public class PlaceServiceImpl implements PlaceService {
         int numberOfConflict = 10;
         int countConflict = 0;
         while (countConflict < numberOfConflict) {
-            Random random = new Random();
+            Random random = new Random(Thread.currentThread().getId());
             int index = random.nextInt(Integer.MAX_VALUE);
             if(!listFind.contains(index))
                 return index;

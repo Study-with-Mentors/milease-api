@@ -4,9 +4,9 @@ import com.querydsl.core.types.Predicate;
 import vn.id.milease.mileaseapi.model.dto.search.PlaceSearchDto;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface PlaceRepositoryCustom {
     Predicate prepareSearchPredicate(PlaceSearchDto search);
-    List<Place> findByIds(List<Long> ids);
+    Optional<Place> getPlaceById(long id);
 }

@@ -6,16 +6,17 @@ import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 @Getter
 @Setter
 public class PlaceSearchDto extends BaseSearchDto {
+    private List<Long> ids = new ArrayList<>();
     private String name = "";
     private List<PlaceType> types;
-    private PlaceStatus status = PlaceStatus.AVAILABLE;
-
+    private List<PlaceStatus> statuses = new ArrayList<>();
     private PlaceProperty orderBy;
     private float durationFrom;
     private float durationTo;

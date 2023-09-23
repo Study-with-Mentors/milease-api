@@ -20,6 +20,7 @@ import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom {
@@ -36,7 +37,12 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom {
     public Predicate prepareSearchPredicate(PlaceSearchDto search) {
         QPlace place = QPlace.place;
         BooleanBuilder preBuilder = new BooleanBuilder();
-        preBuilder.and(place.status.eq(search.getStatus()));
+        if(!search.getStatuses().isEmpty()) {
+            preBuilder.and(place.status.in(search.getStatuses()));
+        }
+        if(!search.getIds().isEmpty()) {
+            preBuilder.and(place.id.in(search.getIds()));
+        }
         if(!StringUtils.isNullOrEmpty(search.getName())) {
             preBuilder.and(place.name.containsIgnoreCase(search.getName()));
         }
@@ -53,15 +59,15 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom {
     }
 
     @Override
-    public List<Place> findByIds(List<Long> ids) {
+    public Optional<Place> getPlaceById(long id) {
         QPlace place = QPlace.place;
         QAddress address = QAddress.address;
         var builder = new BooleanBuilder()
-                .and(place.id.in(ids)).getValue();
-        return jpaQueryFactory.select(place)
+                .and(place.id.eq(id)).getValue();
+        return Optional.of(jpaQueryFactory.select(place)
                 .innerJoin(address)
                 .where(builder)
                 .fetchJoin()
-                .fetch();
+                .fetch().get(0));
     }
 }
