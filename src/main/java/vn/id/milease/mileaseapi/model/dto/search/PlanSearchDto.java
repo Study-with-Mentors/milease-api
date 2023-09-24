@@ -20,7 +20,7 @@ public class PlanSearchDto extends BaseSearchDto {
      * result will contain plan that have <code>endDate</code> < endDate
      */
     private LocalDateTime upperDate;
-    private PlanProperty orderBy;
+    private PlanProperty orderBy = PlanProperty.START;
     // TODO [Duy, P2] Add province after the entity has add field province
 
     @Override

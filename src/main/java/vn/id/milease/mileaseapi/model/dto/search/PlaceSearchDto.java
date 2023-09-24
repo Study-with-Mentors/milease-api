@@ -1,7 +1,8 @@
 package vn.id.milease.mileaseapi.model.dto.search;
 
 import de.mobiuscode.nameof.Name;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceType;
@@ -12,13 +13,12 @@ import java.util.function.Function;
 @Getter
 @Setter
 public class PlaceSearchDto extends BaseSearchDto {
-    // TODO [Dat, P3] why search can filter by id
     private long id;
     private String name = "";
     private List<PlaceType> types;
     private PlaceStatus status = PlaceStatus.AVAILABLE;
 
-    private PlaceProperty orderBy;
+    private PlaceProperty orderBy = PlaceProperty.DISPLAY_INDEX;
     private float durationFrom;
     private float durationTo;
 

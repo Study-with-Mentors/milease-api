@@ -11,9 +11,12 @@ import vn.id.milease.mileaseapi.repository.custom.PlanRepositoryCustom;
 @Repository
 public class PlanRepositoryCustomImpl implements PlanRepositoryCustom {
     @Override
-    public Predicate prepareSearchPredicate(PlanSearchDto dto) {
+    public Predicate prepareSearchPredicate(PlanSearchDto dto, Long userId) {
         QPlan plan = QPlan.plan;
         BooleanBuilder builder = new BooleanBuilder();
+        if (userId != null) {
+            builder.and(plan.user.id.eq(userId));
+        }
         if (dto.getName() != null) {
             builder.and(plan.name.containsIgnoreCase(dto.getName()));
         }

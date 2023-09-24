@@ -41,8 +41,7 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     public PageResult<PlanDto> getPlans(PlanSearchDto searchDto) {
-        // TODO [Duy, P1] only allow user to get their own plans
-        var predicate = planRepository.prepareSearchPredicate(searchDto);
+        var predicate = planRepository.prepareSearchPredicate(searchDto, userService.getCurrentUser().getId());
         PageRequest pageRequest = ServiceUtil.preparePageRequest(searchDto);
         Page<Plan> plans = planRepository.findAll(predicate, pageRequest);
         return ServiceUtil.toPageResult(plans, mapper.getPlanMapper()::toDto, searchDto);

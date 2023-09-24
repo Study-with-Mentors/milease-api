@@ -4,5 +4,5 @@ import com.querydsl.core.types.Predicate;
 import vn.id.milease.mileaseapi.model.dto.search.PlanSearchDto;
 
 public interface PlanRepositoryCustom {
-    Predicate prepareSearchPredicate(PlanSearchDto dto);
+    Predicate prepareSearchPredicate(PlanSearchDto dto, Long userId);
 }
