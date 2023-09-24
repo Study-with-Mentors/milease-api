@@ -11,7 +11,6 @@ import vn.id.milease.mileaseapi.model.dto.search.PlaceSearchDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlaceDto;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
-import vn.id.milease.mileaseapi.model.entity.plan.Plan;
 import vn.id.milease.mileaseapi.model.exception.ActionConflict;
 import vn.id.milease.mileaseapi.model.exception.ConflictException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
@@ -44,6 +43,8 @@ public class PlaceServiceImpl implements PlaceService {
     //TODO [Dat, P1]: Validating address and business
     @Override
     public PlaceDto addPlace(CreatePlaceDto dto) {
+        // TODO [Dat, P3] validate open, close time
+        // TODO [Dat, P3] validate lower, upper price
         var entityToAdd = placeMapper.toEntity(dto);
         entityToAdd.setDisplayIndex(calculateDisplayIndex());
         entityToAdd = placeRepository.save(entityToAdd);

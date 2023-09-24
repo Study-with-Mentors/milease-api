@@ -10,6 +10,7 @@ public class StepDto extends BaseDto {
     private StepType type;
     private Float duration;
     private Float distance;
-    private long nextStepId;
-    private long previousStepId;
+    private Long nextStepId;
+    private Long previousStepId;
+    private PlaceDto place;
 }

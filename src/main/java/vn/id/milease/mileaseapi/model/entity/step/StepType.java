@@ -6,4 +6,5 @@ public enum StepType {
     TRAIN,
     SHIP,
     WALK,
+    VISIT,
 }

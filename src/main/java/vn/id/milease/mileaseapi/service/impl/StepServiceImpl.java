@@ -7,7 +7,9 @@ import vn.id.milease.mileaseapi.model.dto.create.CreateStepDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdateStepDto;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.plan.Plan;
+import vn.id.milease.mileaseapi.model.entity.plan.PlanIdOnly;
 import vn.id.milease.mileaseapi.model.entity.step.Step;
+import vn.id.milease.mileaseapi.model.entity.step.StepIdOnly;
 import vn.id.milease.mileaseapi.model.exception.ArgumentsException;
 import vn.id.milease.mileaseapi.model.exception.ConflictException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
@@ -31,6 +33,25 @@ public class StepServiceImpl implements StepService {
     private final PlaceService placeService;
     private final ApplicationMapper mapper;
 
+    private void linkStep(StepIdOnly step, Long prevStepId, Long nextStepId) {
+        linkPreviousStep(step, prevStepId);
+        linkNextStep(step, nextStepId);
+    }
+
+    private void linkPreviousStep(StepIdOnly step, Long previousStepId) {
+        step.setPreviousStepId(previousStepId);
+        if (previousStepId != null) {
+            stepRepository.updateNextStepById(previousStepId, step.getId());
+        }
+    }
+
+    private void linkNextStep(StepIdOnly step, Long nextStepId) {
+        step.setNextStepId(nextStepId);
+        if (nextStepId != null) {
+            stepRepository.updatePreviousStepById(nextStepId, step.getId());
+        }
+    }
+
     @Override
     public StepDto getStepById(long id) {
         return mapper.getStepMapper().toDto(getStep(id));
@@ -52,33 +73,28 @@ public class StepServiceImpl implements StepService {
         if (step1Id == step2Id) {
             throw new ConflictException("Cannot swap the same step");
         }
-        Step step1 = getStep(step1Id);
-        Step step2 = getStep(step2Id);
-        if (!step1.getPlan().getId().equals(step2.getPlan().getId())) {
+        StepIdOnly step1 = getStepIdOnly(step1Id);
+        StepIdOnly step2 = getStepIdOnly(step2Id);
+        if (!step1.getPlanId().equals(step2.getPlanId())) {
             throw new ArgumentsException("Two steps do not belong to a plan");
         }
-        planService.checkCurrentUserPermission(step1.getPlan());
+        planService.checkCurrentUserPermission(step1.getPlanId());
 
-        if (step1.getNextStep().getId().equals(step2.getId()) || step1.getPreviousStep().getId().equals(step2.getId())) {
+        if (step1.getNextStepId().equals(step2.getId()) || step1.getPreviousStepId().equals(step2.getId())) {
             // adjacent node case: P <-> A(1) <-> B(2) <-> N
             // we want to swap A and B
 
             // swap the node for case P <-> B(2) <-> A(1) <-> N
-            if (step1.getPreviousStep().getId().equals(step2.getId())) {
-                Step tmp = step1;
+            if (step1.getPreviousStepId().equals(step2.getId())) {
+                StepIdOnly tmp = step1;
                 step1 = step2;
                 step2 = tmp;
             }
 
             // set link between A and N
-            step1.setNextStep(step2.getNextStep());
-            if (step2.getNextStep() != null)
-                step2.getNextStep().setPreviousStep(step1);
-
+            linkNextStep(step1, step2.getNextStepId());
             // set link between B and P
-            step2.setPreviousStep(step1.getPreviousStep());
-            if (step1.getPreviousStep() != null)
-                step1.getPreviousStep().setNextStep(step2);
+            linkPreviousStep(step2, step1.getPreviousStepId());
 
             // swap link between A and B
             step1.setPreviousStep(step2);
@@ -87,68 +103,60 @@ public class StepServiceImpl implements StepService {
         } else {
             // case there is node in the middle P <-> A <-> C <-> B <-> N
             // map A to C and N, vice versa
-            linkStep(step1, step2.getPreviousStep(), step2.getNextStep());
+            linkStep(step1, step2.getPreviousStepId(), step2.getNextStepId());
             // map B to C and P, vice versa
-            linkStep(step2, step1.getPreviousStep(), step1.getNextStep());
+            linkStep(step2, step1.getPreviousStepId(), step1.getNextStepId());
         }
 
-        stepRepository.save(step1);
-        stepRepository.save(step2);
-    }
-
-    private static void linkStep(Step step, Step prevStep, Step nextStep) {
-        step.setPreviousStep(prevStep);
-        if (prevStep != null) {
-            prevStep.setNextStep(step);
-        }
-        step.setNextStep(nextStep);
-        if (nextStep != null) {
-            nextStep.setPreviousStep(step);
-        }
+        stepRepository.updateStepPosition(step1);
+        stepRepository.updateStepPosition(step2);
     }
 
     @Override
     public StepDto addStep(CreateStepDto dto) {
-        Plan plan = planService.getPlan(dto.getPlanId());
-        planService.checkCurrentUserPermission(plan);
         Place place = placeService.getPlace(dto.getPlaceId());
 
-        Step step = mapper.getStepMapper().toEntity(dto);
-        step.setPlan(plan);
-        step.setPlace(place);
-        step.setId(0L);
+        Step stepEntity = mapper.getStepMapper().toEntity(dto);
+        stepEntity.setPlace(place);
+        stepEntity.setId(0L);
+        stepEntity = stepRepository.save(stepEntity);
+        StepIdOnly step = getStepIdOnly(stepEntity.getId());
 
-        if (dto.getPrevStepId() == null) {
+        PlanIdOnly plan = planService.getPlanIdOnly(dto.getPlanId());
+        planService.checkCurrentUserPermission(plan);
+        step.setPlan(plan);
+
+        if (dto.getPreviousStepId() == null) {
             // insert to the head of plan
-            Step currentHead = plan.getFirstStep();
-            plan.setFirstStep(step);
-            if (currentHead != null) {
-                step.setNextStep(currentHead);
-                currentHead.setPreviousStep(step);
+            if (plan.getFirstStepId() != null) {
+                step.setNextStepId(plan.getFirstStepId());
+                stepRepository.updatePreviousStepById(plan.getFirstStepId(), step.getId());
             }
+            plan.setFirstStep(step);
         } else {
-            if (plan.getFirstStep() == null) {
+            if (plan.getFirstStepId() == null) {
                 // insert the first step in plan
                 plan.setFirstStep(step);
             } else {
                 // insert step in the middle of linked list
-                Step prevStep = getStep(dto.getPrevStepId());
-                Step nextStep = prevStep.getNextStep();
+                StepIdOnly prevStep = getStepIdOnly(dto.getPreviousStepId());
 
-                prevStep.setNextStep(step);
                 step.setPreviousStep(prevStep);
-
-                if (nextStep != null) {
-                    step.setNextStep(nextStep);
-                    nextStep.setPreviousStep(step);
+                step.setNextStepId(prevStep.getNextStepId());
+                if (prevStep.getNextStepId() != null) {
+                    stepRepository.updatePreviousStepById(prevStep.getNextStepId(), step.getId());
                 }
+                prevStep.setNextStep(step);
+                stepRepository.updateStepPosition(prevStep);
             }
         }
 
-
-        planRepository.save(plan);
-        step = stepRepository.save(step);
-        return mapper.getStepMapper().toDto(step);
+        planRepository.updatePlan(plan);
+        stepRepository.updateStepPosition(step);
+        StepDto resultDto = mapper.getStepMapper().toDto(stepEntity);
+        resultDto.setNextStepId(step.getNextStepId());
+        resultDto.setPreviousStepId(step.getPreviousStepId());
+        return resultDto;
     }
 
     @Override
@@ -163,27 +171,36 @@ public class StepServiceImpl implements StepService {
 
     @Override
     public void deleteStep(long id) {
-        Step step = getStep(id);
-        planService.checkCurrentUserPermission(step.getPlan());
-        if (step.getPreviousStep() == null) {
+        StepIdOnly step = getStepIdOnly(id);
+        PlanIdOnly plan = planService.getPlanIdOnly(step.getPlanId());
+        planService.checkCurrentUserPermission(plan);
+        if (step.getPreviousStepId() == null) {
             // Update the head of linked list
-            Plan plan = step.getPlan();
-            plan.setFirstStep(null);
-            planRepository.save(plan);
+            if (step.getNextStepId() != null) {
+                stepRepository.updatePreviousStepById(step.getNextStepId(), null);
+                plan.setFirstStepId(step.getNextStepId());
+            } else {
+                plan.setFirstStep(null);
+            }
+            planRepository.updatePlan(plan);
         } else {
             // Update the next/prev link
-            Step prevStep = step.getPreviousStep();
-            Step nextStep = step.getNextStep();
-            prevStep.setNextStep(nextStep);
-            nextStep.setPreviousStep(prevStep);
+            Long prevStepId = step.getPreviousStepId();
+            Long nextStepId = step.getNextStepId();
 
-            stepRepository.save(nextStep);
-            stepRepository.save(prevStep);
+            stepRepository.updateNextStepById(prevStepId, nextStepId);
+            if (nextStepId != null) {
+                stepRepository.updatePreviousStepById(nextStepId, prevStepId);
+            }
         }
         stepRepository.deleteById(id);
     }
 
     private Step getStep(long id) {
         return stepRepository.findById(id).orElseThrow(() -> new NotFoundException(Step.class, id));
+    }
+
+    private StepIdOnly getStepIdOnly(long id) {
+        return stepRepository.findIdOnlyById(id).orElseThrow(() -> new NotFoundException(Step.class, id));
     }
 }

@@ -10,6 +10,7 @@ import vn.id.milease.mileaseapi.model.dto.create.CreatePlanDto;
 import vn.id.milease.mileaseapi.model.dto.search.PlanSearchDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlanDto;
 import vn.id.milease.mileaseapi.model.entity.plan.Plan;
+import vn.id.milease.mileaseapi.model.entity.plan.PlanIdOnly;
 import vn.id.milease.mileaseapi.model.entity.user.User;
 import vn.id.milease.mileaseapi.model.exception.ActionConflict;
 import vn.id.milease.mileaseapi.model.exception.ArgumentsException;
@@ -69,6 +70,7 @@ public class PlanServiceImpl implements PlanService {
     }
 
     private void checkDatetime(LocalDateTime dto, LocalDateTime dto1) {
+        // TODO [Duy, P3]: differentiate between create and update plan
         if (!dto.isAfter(LocalDateTime.now())) {
             throw new ArgumentsException(Plan.class, ActionConflict.CREATE, "Start time must be after now");
         }
@@ -93,8 +95,28 @@ public class PlanServiceImpl implements PlanService {
         }
     }
 
+    @Override
+    public void checkCurrentUserPermission(PlanIdOnly plan) {
+        User user = userService.getCurrentUser();
+        if (!plan.getUserId().equals(user.getId())) {
+            throw new ForbiddenException(Plan.class, user.getId(), plan.getId());
+        }
+    }
+
+    @Override
+    public void checkCurrentUserPermission(Long planId) {
+        checkCurrentUserPermission(getPlanIdOnly(planId));
+    }
+
+    @Override
     public Plan getPlan(long id) {
         return planRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Plan.class, id));
+    }
+
+    @Override
+    public PlanIdOnly getPlanIdOnly(long id) {
+        return planRepository.findIdOnlyById(id)
                 .orElseThrow(() -> new NotFoundException(Plan.class, id));
     }
 }

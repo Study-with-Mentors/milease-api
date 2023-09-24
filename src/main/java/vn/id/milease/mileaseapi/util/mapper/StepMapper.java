@@ -12,6 +12,13 @@ import vn.id.milease.mileaseapi.model.entity.step.Step;
 @Component
 public class StepMapper implements Mapper<Step, StepDto, CreateStepDto, UpdateStepDto> {
     private final ModelMapper mapper;
+
+    public static void configureMapper(ModelMapper mapper) {
+        mapper.typeMap(Step.class, StepDto.class)
+                .addMappings(m -> m.map(src -> src.getNextStep().getId(), StepDto::setNextStepId))
+                .addMappings(m -> m.map(src -> src.getPreviousStep().getId(), StepDto::setPreviousStepId));
+    }
+
     @Override
     public Step toEntity(CreateStepDto createStepDto) {
         return mapper.map(createStepDto, Step.class);
