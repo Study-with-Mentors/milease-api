@@ -5,13 +5,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import vn.id.milease.mileaseapi.model.entity.place.Place;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapsId;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -32,4 +35,7 @@ public class Business {
     @JoinColumn(name = "account_id")
     @MapsId
     private User user;
+
+    @OneToMany(mappedBy = "business")
+    private List<Place> places;
 }
