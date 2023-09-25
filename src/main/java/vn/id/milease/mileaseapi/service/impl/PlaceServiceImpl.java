@@ -1,7 +1,6 @@
 package vn.id.milease.mileaseapi.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.id.GUIDGenerator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -87,6 +86,7 @@ public class PlaceServiceImpl implements PlaceService {
         return placeMapper.toDto(result);
     }
 
+    //TODO [Dat, P2]: Calculate index base on business rule
     private int calculateDisplayIndex() {
         var listFind = placeRepository.findAll()
                 .stream()
