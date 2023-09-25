@@ -1,24 +1,25 @@
 package vn.id.milease.mileaseapi.model.dto.search;
 
 import de.mobiuscode.nameof.Name;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PlaceSearchDto extends BaseSearchDto {
-    private List<Long> ids = new ArrayList<>();
-    private String name = "";
+    private List<Long> ids;
+    private String name;
     private List<PlaceType> types;
-    private List<PlaceStatus> statuses = new ArrayList<>();
-    private PlaceProperty orderBy = PlaceProperty.DISPLAY_INDEX;
+    private List<PlaceStatus> statuses;
+    private PlaceProperty orderBy;
     private float durationFrom;
     private float durationTo;
 

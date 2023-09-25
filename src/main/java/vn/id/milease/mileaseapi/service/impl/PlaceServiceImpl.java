@@ -1,6 +1,7 @@
 package vn.id.milease.mileaseapi.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
@@ -16,11 +17,15 @@ import vn.id.milease.mileaseapi.model.exception.ActionConflict;
 import vn.id.milease.mileaseapi.model.exception.ConflictException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
 import vn.id.milease.mileaseapi.repository.PlaceRepository;
+import vn.id.milease.mileaseapi.repository.TransactionRepository;
 import vn.id.milease.mileaseapi.service.PlaceService;
 import vn.id.milease.mileaseapi.service.util.ServiceUtil;
 import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
 
 import javax.transaction.Transactional;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -28,16 +33,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Transactional
+@Slf4j
 public class PlaceServiceImpl implements PlaceService {
     private final PlaceRepository placeRepository;
+    private final TransactionRepository transactionRepository;
     private final PlaceMapper placeMapper;
-    private final Random random = new Random();
+    private final ZoneId VN_ZONE_ID = ZoneId.of("Asia/Ho_Chi_Minh");
+    private final Random random = new Random(Thread.currentThread().getId());
 
     @Async
     @Override
-    public CompletableFuture<PageResult<PlaceDto>> getPlacesAsync(PlaceSearchDto searchDto) throws InterruptedException {
-        Thread.sleep(10000);
-        return  CompletableFuture.completedFuture(this.getPlaces(searchDto));
+    public CompletableFuture<PageResult<PlaceDto>> getPlacesAsync(PlaceSearchDto searchDto) {
+        return CompletableFuture.completedFuture(this.getPlaces(searchDto));
     }
 
     @Override
@@ -56,6 +63,7 @@ public class PlaceServiceImpl implements PlaceService {
         // TODO [Dat, P3] validate lower, upper price
         var entityToAdd = placeMapper.toEntity(dto);
         entityToAdd.setDisplayIndex(calculateDisplayIndex());
+        entityToAdd.setCreatedAt(LocalDateTime.now(VN_ZONE_ID));
         entityToAdd = placeRepository.save(entityToAdd);
         return placeMapper.toDto(entityToAdd);
     }
@@ -91,7 +99,7 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     //TODO [Dat, P2]: Calculate index base on business rule
-    private int calculateDisplayIndex() {
+    private long calculateDisplayIndex() {
         var listFind = placeRepository.findAll()
                 .stream()
                 .map(Place::getDisplayIndex)
@@ -99,7 +107,7 @@ public class PlaceServiceImpl implements PlaceService {
         int numberOfConflict = 10;
         int countConflict = 0;
         while (countConflict < numberOfConflict) {
-            int index = random.nextInt(Integer.MAX_VALUE);
+            long index = random.nextLong(Long.MAX_VALUE);
             if (!listFind.contains(index))
                 return index;
             countConflict++;
@@ -110,5 +118,34 @@ public class PlaceServiceImpl implements PlaceService {
     public Place getPlace(long id) {
         return placeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Place.class, id));
+    }
+
+    @Async
+    @Override
+    public CompletableFuture<Void> updateDisplayIndex() {
+        //If the time interval from 'createdAt' to current of all transactions are less than or is equal to this variable
+        //Bonus will be calculated
+        long allowTimeIntervalToCalBonus = (long) 30 * 24 * 60 * 60;
+        LocalDateTime currentTime = LocalDateTime.now(VN_ZONE_ID);
+        var validPlaces = placeRepository.findAllByStatus(PlaceStatus.AVAILABLE);
+        if (validPlaces.isEmpty())
+            return CompletableFuture.completedFuture(null);
+        for (var place : validPlaces) {
+            long displayIndexAmountToAdd = ServiceUtil.calculateAmountOfDisplayIndex(place, currentTime, allowTimeIntervalToCalBonus);
+            // Long.MAX_VALUE or Long.MIN_VALUE are symbolic for
+            // allowHighestDisplayIndex or allowLowestDisplayIndex
+            // which are defined by BR
+            long amountToMinValue = place.getDisplayIndex() > 0 ? Long.MIN_VALUE + place.getDisplayIndex() : Long.MIN_VALUE - place.getDisplayIndex();
+            long amountToMaxValue = place.getDisplayIndex() > 0 ? Long.MAX_VALUE - place.getDisplayIndex() : Long.MAX_VALUE + place.getDisplayIndex();
+            if (displayIndexAmountToAdd < amountToMinValue) {
+                place.setDisplayIndex(Long.MIN_VALUE);
+                place.setStatus(PlaceStatus.UNAVAILABLE);
+            } else if (amountToMaxValue < displayIndexAmountToAdd && place.getDisplayIndex() != Long.MAX_VALUE) {
+                place.setDisplayIndex(Long.MAX_VALUE);
+            } else
+                place.setDisplayIndex(place.getDisplayIndex() + displayIndexAmountToAdd);
+        }
+        placeRepository.saveAll(validPlaces);
+        return CompletableFuture.completedFuture(null);
     }
 }
