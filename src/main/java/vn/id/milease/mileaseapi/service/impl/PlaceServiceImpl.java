@@ -3,6 +3,7 @@ package vn.id.milease.mileaseapi.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import vn.id.milease.mileaseapi.model.dto.PageResult;
 import vn.id.milease.mileaseapi.model.dto.PlaceDto;
@@ -21,6 +22,7 @@ import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
 
 import javax.transaction.Transactional;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -30,6 +32,13 @@ public class PlaceServiceImpl implements PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceMapper placeMapper;
     private final Random random = new Random();
+
+    @Async
+    @Override
+    public CompletableFuture<PageResult<PlaceDto>> getPlacesAsync(PlaceSearchDto searchDto) throws InterruptedException {
+        Thread.sleep(10000);
+        return  CompletableFuture.completedFuture(this.getPlaces(searchDto));
+    }
 
     @Override
     public PageResult<PlaceDto> getPlaces(PlaceSearchDto searchDto) {

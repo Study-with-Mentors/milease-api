@@ -8,9 +8,11 @@ import vn.id.milease.mileaseapi.model.dto.PlaceDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreatePlaceDto;
 import vn.id.milease.mileaseapi.model.dto.search.PlaceSearchDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlaceDto;
+import vn.id.milease.mileaseapi.model.exception.ApplicationException;
 import vn.id.milease.mileaseapi.service.PlaceService;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/places")
@@ -19,7 +21,11 @@ public class PlaceController {
     private final PlaceService placeService;
     @GetMapping
     public ResponseEntity<PageResult<PlaceDto>> searchPlaces(PlaceSearchDto searchDto) {
-        return new ResponseEntity<>(placeService.getPlaces(searchDto), HttpStatus.OK);
+        try {
+            return new ResponseEntity<>(placeService.getPlacesAsync(searchDto).get(), HttpStatus.OK);
+        } catch (InterruptedException | ExecutionException e) {
+            throw new ApplicationException("500", HttpStatus.INTERNAL_SERVER_ERROR, "Error Occurred");
+        }
     }
 
     @GetMapping("/{id}")

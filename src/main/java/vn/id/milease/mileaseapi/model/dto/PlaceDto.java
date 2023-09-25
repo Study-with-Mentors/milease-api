@@ -19,12 +19,12 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class PlaceDto extends BaseDto {
     private String name;
-    private float priceLower;
-    private float priceUpper;
+    private Float priceLower;
+    private Float priceUpper;
     private LocalTime open;
     private LocalTime close;
     private String description;
-    private float averageDuration;
+    private Float averageDuration;
     private PlaceType type;
     private PlaceStatus status;
 }
