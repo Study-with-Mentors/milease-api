@@ -79,6 +79,14 @@ public class PlaceServiceImpl implements PlaceService {
         placeRepository.save(entityToDelete);
     }
 
+    @Override
+    public PlaceDto getPlacesById(long id) {
+        var result = placeRepository.getPlaceById(id)
+                .orElseThrow(() -> new NotFoundException(Place.class, id));
+        return placeMapper.toDto(result);
+    }
+
+    //TODO [Dat, P2]: Calculate index base on business rule
     private int calculateDisplayIndex() {
         var listFind = placeRepository.findAll()
                 .stream()
@@ -87,7 +95,7 @@ public class PlaceServiceImpl implements PlaceService {
         int numberOfConflict = 10;
         int countConflict = 0;
         while (countConflict < numberOfConflict) {
-            Random random = new Random();
+            Random random = new Random(Thread.currentThread().getId());
             int index = random.nextInt(Integer.MAX_VALUE);
             if(!listFind.contains(index))
                 return index;
