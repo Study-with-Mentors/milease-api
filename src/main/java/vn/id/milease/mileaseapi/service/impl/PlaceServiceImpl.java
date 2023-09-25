@@ -74,6 +74,14 @@ public class PlaceServiceImpl implements PlaceService {
         placeRepository.save(entityToDelete);
     }
 
+    @Override
+    public PlaceDto getPlacesById(long id) {
+        var result = placeRepository.getPlaceById(id)
+                .orElseThrow(() -> new NotFoundException(Place.class, id));
+        return placeMapper.toDto(result);
+    }
+
+    //TODO [Dat, P2]: Calculate index base on business rule
     private int calculateDisplayIndex() {
         var listFind = placeRepository.findAll()
                 .stream()

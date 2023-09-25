@@ -22,6 +22,10 @@ public class PlaceController {
         return new ResponseEntity<>(placeService.getPlaces(searchDto), HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<PlaceDto> getPlacesById(@PathVariable long id) {
+        return new ResponseEntity<>(placeService.getPlacesById(id), HttpStatus.OK);
+    }
     @PostMapping
     public ResponseEntity<Void> addPlace(@RequestBody CreatePlaceDto dto, HttpServletResponse response) {
         PlaceDto result = placeService.addPlace(dto);

@@ -16,5 +16,7 @@ public interface PlaceService {
 
     void deletePlace(long id);
 
+    PlaceDto getPlacesById(long id);
+
     Place getPlace(long id);
 }
