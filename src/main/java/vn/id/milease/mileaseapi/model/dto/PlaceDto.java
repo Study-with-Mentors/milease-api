@@ -1,10 +1,15 @@
 package vn.id.milease.mileaseapi.model.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceType;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -12,12 +17,12 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PlaceDto extends BaseDto{
+public class PlaceDto extends BaseDto {
     private String name;
     private float priceLower;
     private float priceUpper;
-    private LocalDateTime open;
-    private LocalDateTime close;
+    private LocalTime open;
+    private LocalTime close;
     private String description;
     private float averageDuration;
     private PlaceType type;

@@ -8,10 +8,10 @@ import lombok.Setter;
 import vn.id.milease.mileaseapi.model.entity.user.User;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import java.sql.Date;
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class Subscription extends BaseEntity {
     private Date startDate;
     private Date endDate;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private User user;
 

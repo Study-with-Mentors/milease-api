@@ -9,6 +9,7 @@ import vn.id.milease.mileaseapi.model.entity.place.Place;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapsId;
@@ -31,7 +32,7 @@ public class Business {
     private String businessType;
     private String businessCategory;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     @MapsId
     private User user;

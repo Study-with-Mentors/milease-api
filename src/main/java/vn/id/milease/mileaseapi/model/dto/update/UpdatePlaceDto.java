@@ -7,7 +7,7 @@ import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceType;
 
 import javax.annotation.Nullable;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -17,9 +17,9 @@ public class UpdatePlaceDto extends BaseDto {
     private float priceLower;
     private float priceUpper;
     @Nullable
-    private LocalDateTime open;
+    private LocalTime open;
     @Nullable
-    private LocalDateTime close;
+    private LocalTime close;
     @Nullable
     private String description;
     private float averageDuration;

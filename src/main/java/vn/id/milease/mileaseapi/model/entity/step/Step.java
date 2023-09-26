@@ -8,18 +8,15 @@ import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.plan.Plan;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Setter
 @Getter
 @ToString
-public class Step extends BaseEntity{
-    private LocalDateTime start;
-    private LocalDateTime end;
+public class Step extends BaseEntity {
     private StepType type;
-    private Integer index;
     private Float duration;
+    // TODO [Duy, P3] distance should be refactor (maybe client will call map API to figure out)
     private Float distance;
     @ManyToOne
     @JoinColumn
@@ -27,4 +24,10 @@ public class Step extends BaseEntity{
     @ManyToOne
     @JoinColumn
     private Place place;
+
+    // step will be implemented as linked list
+    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    private Step nextStep;
+    @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    private Step previousStep;
 }
