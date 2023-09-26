@@ -60,8 +60,7 @@ public class TransactionServiceImpl implements TransactionService {
         return CompletableFuture.supplyAsync(() -> {
             var existed = placeRepository.findById(dto.getId())
                     .orElseThrow(() -> new NotFoundException(Place.class, dto.getPlaceId()));
-            var entityToUpdate = transactionRepository.findById(dto.getId())
-                    .orElseThrow(() -> new NotFoundException(Transaction.class, dto.getId()));
+            var entityToUpdate = this.getTransactionById(dto.getId());
             transactionMapper.toEntity(dto, entityToUpdate);
             transactionRepository.save(entityToUpdate);
             ServiceUtil.calculateAmountOfDisplayIndex(existed, LocalDateTime.now(AppConstant.VN_ZONE_ID), AppConstant.ALLOW_TIME_INTERVAL_TO_CAL_BONUS);

@@ -15,6 +15,7 @@ import vn.id.milease.mileaseapi.model.dto.update.UpdatePlaceDto;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
 import vn.id.milease.mileaseapi.model.exception.ActionConflict;
+import vn.id.milease.mileaseapi.model.exception.BadRequestException;
 import vn.id.milease.mileaseapi.model.exception.ConflictException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
 import vn.id.milease.mileaseapi.repository.PlaceRepository;
@@ -58,7 +59,7 @@ public class PlaceServiceImpl implements PlaceService {
         // TODO [Dat, P3] validate open, close time
         // TODO [Dat, P3] validate lower, upper price
         validateCreatePlace(dto);
-        if(dto.getStatus() == null)
+        if (dto.getStatus() == null)
             dto.setStatus(PlaceStatus.AVAILABLE);
         var entityToAdd = placeMapper.toEntity(dto);
         entityToAdd.setDisplayIndex(calculateDisplayIndex());
@@ -68,12 +69,12 @@ public class PlaceServiceImpl implements PlaceService {
     }
 
     private void validateCreatePlace(CreatePlaceDto dto) {
-        if(dto.getOpen() != null && dto.getClose() != null && dto.getOpen().isAfter(dto.getClose()))
-            throw new ConflictException(String.format("%s Open time must be less than close time", dto.getName()));
-        if(dto.getPriceLower() < 0 || dto.getPriceUpper() < 0)
-            throw new ConflictException("Upper price or Lower price cannot be negative");
-        if(dto.getPriceUpper() < dto.getPriceLower())
-            throw new ConflictException("Upper price cannot be smaller than Lower price");
+        if (dto.getOpen() != null && dto.getClose() != null && dto.getOpen().isAfter(dto.getClose()))
+            throw new BadRequestException(String.format("%s Open time must be less than close time", dto.getName()));
+        if (dto.getPriceLower() < 0 || dto.getPriceUpper() < 0)
+            throw new BadRequestException("Upper price or Lower price cannot be negative");
+        if (dto.getPriceUpper() < dto.getPriceLower())
+            throw new BadRequestException("Upper price cannot be smaller than Lower price");
 
     }
 
