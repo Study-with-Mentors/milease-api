@@ -11,15 +11,14 @@ import java.time.LocalTime;
 @Setter
 public class CreatePlaceDto {
     private String name;
-    private float priceLower = 0;
-    private float priceUpper = 0;
+    private float priceLower;
+    private float priceUpper;
     private LocalTime open;
     private LocalTime close;
     private String description;
     private float averageDuration;
     private PlaceType type = PlaceType.ENTERTAINMENT;
-    // TODO [Dat, P3]: The default status when create should be available instead of having a field in this
-    private PlaceStatus status = PlaceStatus.AVAILABLE;
+    private PlaceStatus status;
     private long addressId;
     private long businessId;
 }

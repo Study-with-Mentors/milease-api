@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import vn.id.milease.mileaseapi.configuration.AppConstant;
 import vn.id.milease.mileaseapi.model.dto.PageResult;
 import vn.id.milease.mileaseapi.model.dto.PlaceDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreatePlaceDto;
@@ -17,15 +18,12 @@ import vn.id.milease.mileaseapi.model.exception.ActionConflict;
 import vn.id.milease.mileaseapi.model.exception.ConflictException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
 import vn.id.milease.mileaseapi.repository.PlaceRepository;
-import vn.id.milease.mileaseapi.repository.TransactionRepository;
 import vn.id.milease.mileaseapi.service.PlaceService;
 import vn.id.milease.mileaseapi.service.util.ServiceUtil;
 import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
 
 import javax.transaction.Transactional;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -36,9 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PlaceServiceImpl implements PlaceService {
     private final PlaceRepository placeRepository;
-    private final TransactionRepository transactionRepository;
     private final PlaceMapper placeMapper;
-    private final ZoneId VN_ZONE_ID = ZoneId.of("Asia/Ho_Chi_Minh");
     private final Random random = new Random(Thread.currentThread().getId());
 
     @Async
@@ -61,11 +57,24 @@ public class PlaceServiceImpl implements PlaceService {
     public PlaceDto addPlace(CreatePlaceDto dto) {
         // TODO [Dat, P3] validate open, close time
         // TODO [Dat, P3] validate lower, upper price
+        validateCreatePlace(dto);
+        if(dto.getStatus() == null)
+            dto.setStatus(PlaceStatus.AVAILABLE);
         var entityToAdd = placeMapper.toEntity(dto);
         entityToAdd.setDisplayIndex(calculateDisplayIndex());
-        entityToAdd.setCreatedAt(LocalDateTime.now(VN_ZONE_ID));
+        entityToAdd.setCreatedAt(LocalDateTime.now(AppConstant.VN_ZONE_ID));
         entityToAdd = placeRepository.save(entityToAdd);
         return placeMapper.toDto(entityToAdd);
+    }
+
+    private void validateCreatePlace(CreatePlaceDto dto) {
+        if(dto.getOpen() != null && dto.getClose() != null && dto.getOpen().isAfter(dto.getClose()))
+            throw new ConflictException(String.format("%s Open time must be less than close time", dto.getName()));
+        if(dto.getPriceLower() < 0 || dto.getPriceUpper() < 0)
+            throw new ConflictException("Upper price or Lower price cannot be negative");
+        if(dto.getPriceUpper() < dto.getPriceLower())
+            throw new ConflictException("Upper price cannot be smaller than Lower price");
+
     }
 
     //TODO [Dat, P1]: Validating address and business
@@ -125,13 +134,12 @@ public class PlaceServiceImpl implements PlaceService {
     public CompletableFuture<Void> updateDisplayIndex() {
         //If the time interval from 'createdAt' to current of all transactions are less than or is equal to this variable
         //Bonus will be calculated
-        long allowTimeIntervalToCalBonus = (long) 30 * 24 * 60 * 60;
-        LocalDateTime currentTime = LocalDateTime.now(VN_ZONE_ID);
+        LocalDateTime currentTime = LocalDateTime.now(AppConstant.VN_ZONE_ID);
         var validPlaces = placeRepository.findAllByStatus(PlaceStatus.AVAILABLE);
         if (validPlaces.isEmpty())
             return CompletableFuture.completedFuture(null);
         for (var place : validPlaces) {
-            long displayIndexAmountToAdd = ServiceUtil.calculateAmountOfDisplayIndex(place, currentTime, allowTimeIntervalToCalBonus);
+            long displayIndexAmountToAdd = ServiceUtil.calculateAmountOfDisplayIndex(place, currentTime, AppConstant.ALLOW_TIME_INTERVAL_TO_CAL_BONUS);
             // Long.MAX_VALUE or Long.MIN_VALUE are symbolic for
             // allowHighestDisplayIndex or allowLowestDisplayIndex
             // which are defined by BR

@@ -10,18 +10,22 @@ import vn.id.milease.mileaseapi.model.entity.place.Place;
 
 @Component
 @RequiredArgsConstructor
-public class TransactionMapper {
+public class TransactionMapper implements Mapper<Transaction, TransactionDto, CreateTransactionDto, UpdateTransactionDto>{
     private final PlaceMapper placeMapper;
+
+    @Override
     public Transaction toEntity(CreateTransactionDto dto) {
         return Transaction.builder()
                 .amount(dto.getAmount())
                 .build();
     }
 
-    public void toEntity(UpdateTransactionDto o, Transaction o2) {
-        o2.setAmount(o.getAmount());
+    @Override
+    public void toEntity(UpdateTransactionDto dto, Transaction entity) {
+        entity.setAmount(dto.getAmount());
     }
 
+    @Override
     public TransactionDto toDto(Transaction entity) {
         var resultBuilder = TransactionDto.builder()
                 .amount(entity.getAmount())

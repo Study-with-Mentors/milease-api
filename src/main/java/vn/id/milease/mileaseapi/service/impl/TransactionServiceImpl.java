@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import vn.id.milease.mileaseapi.configuration.AppConstant;
 import vn.id.milease.mileaseapi.model.dto.TransactionDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateTransactionDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdateTransactionDto;
@@ -27,7 +28,6 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
-    private static final ZoneId VN_ZONE_ID = ZoneId.of("Asia/Ho_Chi_Minh");
     private final PlaceRepository placeRepository;
     private final TransactionMapper transactionMapper;
 
@@ -38,7 +38,7 @@ public class TransactionServiceImpl implements TransactionService {
             var existedPlace = placeRepository.findById(dto.getPlaceId())
                     .orElseThrow(() -> new NotFoundException(Place.class, dto.getPlaceId()));
             var entityToAdd = transactionMapper.toEntity(dto);
-            entityToAdd.setCreatedAt(LocalDateTime.now(VN_ZONE_ID));
+            entityToAdd.setCreatedAt(LocalDateTime.now(AppConstant.VN_ZONE_ID));
             entityToAdd.setPlace(existedPlace);
             if (existedPlace.getLastestTransaction() != null)
                 entityToAdd.setOldTransaction(existedPlace.getLastestTransaction());
@@ -64,7 +64,8 @@ public class TransactionServiceImpl implements TransactionService {
                     .orElseThrow(() -> new NotFoundException(Transaction.class, dto.getId()));
             transactionMapper.toEntity(dto, entityToUpdate);
             transactionRepository.save(entityToUpdate);
-            ServiceUtil.calculateAmountOfDisplayIndex(existed, LocalDateTime.now(VN_ZONE_ID), (long) 30 * 24 * 60 * 60);
+            ServiceUtil.calculateAmountOfDisplayIndex(existed, LocalDateTime.now(AppConstant.VN_ZONE_ID), AppConstant.ALLOW_TIME_INTERVAL_TO_CAL_BONUS);
+            placeRepository.save(existed);
             return entityToUpdate.getId();
         });
     }
