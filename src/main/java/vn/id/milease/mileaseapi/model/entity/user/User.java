@@ -12,6 +12,7 @@ import vn.id.milease.mileaseapi.model.entity.BaseEntity;
 import vn.id.milease.mileaseapi.model.entity.Phone;
 import vn.id.milease.mileaseapi.model.entity.Subscription;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -32,6 +33,7 @@ import java.util.List;
 public class User extends BaseEntity implements UserDetails {
     private String email;
     private String password;
+    private String imageUrl;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
@@ -39,7 +41,7 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST)
     @PrimaryKeyJoinColumn
     private Traveler traveler;
 
@@ -65,7 +67,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
@@ -75,7 +77,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override

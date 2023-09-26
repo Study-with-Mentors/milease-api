@@ -71,7 +71,7 @@ public class JwtTokenProvider {
                 .setSigningKey(JWT_SECRET_KEY)
                 .build()
                 .parseClaimsJws(token);
-        // TODO [Khanh, P3]: Uncomment the below code after setting up exception handler
+        // TODO [Khanh, P1]: Uncomment the below code after setting up exception handler
 //        } catch (ExpiredJwtException ex) {
 //            throw new JwtExpiredException(token, ex);
 //        } catch (JwtException | IllegalArgumentException ex) {
