@@ -3,7 +3,12 @@ package vn.id.milease.mileaseapi.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import vn.id.milease.mileaseapi.model.dto.TransactionDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateTransactionDto;
 import vn.id.milease.mileaseapi.service.TransactionService;
@@ -12,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/business/transactions")
+@RequestMapping("/businesses/transactions")
 public class BusinessTransactionController {
     private final TransactionService transactionService;
 

@@ -1,11 +1,16 @@
 package vn.id.milease.mileaseapi.model.dto.search;
 
 import de.mobiuscode.nameof.Name;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceType;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Function;
 
@@ -19,13 +24,14 @@ public class PlaceSearchDto extends BaseSearchDto {
     private String name;
     private List<PlaceType> types;
     private List<PlaceStatus> statuses;
+    @Nullable
     private PlaceProperty orderBy;
     private float durationFrom;
     private float durationTo;
 
     @Override
     public String getOrderBy() {
-        return orderBy.getNameOfProperty();
+        return orderBy != null ? orderBy.getNameOfProperty() : PlaceProperty.DISPLAY_INDEX.getNameOfProperty();
     }
 
     //Use library 'mobiuscode' to have a syntax nameof like C# in order to avoid magic string.
