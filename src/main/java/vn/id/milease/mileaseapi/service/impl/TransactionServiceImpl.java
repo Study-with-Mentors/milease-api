@@ -54,6 +54,7 @@ public class TransactionServiceImpl implements TransactionService {
         return CompletableFuture.supplyAsync(() -> transactionMapper.toDto(getTransactionById(id)));
     }
 
+    @Async
     @Override
     public CompletableFuture<Long> updateTransaction(UpdateTransactionDto dto) {
         return CompletableFuture.supplyAsync(() -> {
