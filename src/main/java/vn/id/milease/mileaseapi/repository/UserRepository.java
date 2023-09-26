@@ -5,4 +5,5 @@ import vn.id.milease.mileaseapi.model.entity.user.User;
 import vn.id.milease.mileaseapi.repository.custom.UserRepositoryCustom;
 
 public interface UserRepository extends JpaRepository<User, Long>, UserRepositoryCustom {
+    User findByEmail(String email);
 }
