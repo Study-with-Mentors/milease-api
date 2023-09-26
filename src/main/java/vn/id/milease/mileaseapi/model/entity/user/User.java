@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import vn.id.milease.mileaseapi.model.entity.Address;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
 import vn.id.milease.mileaseapi.model.entity.Phone;
 import vn.id.milease.mileaseapi.model.entity.Subscription;
@@ -46,9 +45,6 @@ public class User extends BaseEntity {
 
     @OneToOne(mappedBy = "user")
     private Subscription subscription;
-
-    @OneToMany(mappedBy = "user")
-    private List<Address> addresses;
 
     @OneToMany(mappedBy = "user")
     private List<Phone> phones;
