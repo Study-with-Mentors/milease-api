@@ -1,7 +1,5 @@
 package vn.id.milease.mileaseapi.util;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,11 +14,13 @@ import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
+    private static final int MILLISECONDS_PER_MINUTE = 60000;
+
     @Value("${app.jwt.secret}")
     private String JWT_SECRET;
 
-    @Value("${app.jwt.expiration}")
-    private long JWT_EXPIRATION = 60; // minutes
+    @Value("${app.jwt.expiration:60}")
+    private long JWT_EXPIRATION; // minutes
 
     private SecretKey JWT_SECRET_KEY;
 
@@ -31,7 +31,7 @@ public class JwtTokenProvider {
 
     public String generateToken(UserDetails userDetails) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION * 60000);
+        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION * MILLISECONDS_PER_MINUTE);
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("id", ((User) userDetails).getId())
