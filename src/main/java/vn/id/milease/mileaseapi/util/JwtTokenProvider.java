@@ -18,8 +18,11 @@ import java.util.Date;
 public class JwtTokenProvider {
     @Value("${app.jwt.secret}")
     private String JWT_SECRET;
+
+    @Value("${app.jwt.expiration}")
+    private long JWT_EXPIRATION = 60; // minutes
+
     private SecretKey JWT_SECRET_KEY;
-    private final long JWT_EXPIRATION = 60000L * 60; // 1 hr
 
     @PostConstruct
     public void postConstruct() {
@@ -28,7 +31,7 @@ public class JwtTokenProvider {
 
     public String generateToken(UserDetails userDetails) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
+        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION * 60000);
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("id", ((User) userDetails).getId())
