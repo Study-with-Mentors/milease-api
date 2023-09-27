@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.id.milease.mileaseapi.model.exception.GoogleIdTokenVerificationFailedException;
 import vn.id.milease.mileaseapi.service.AuthenticationService;
 
 @RestController
@@ -20,11 +21,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<Object> googleLogin(@RequestBody String idToken) {
-        try {
-            return ResponseEntity.ok(authenticationService.verifyIdToken(idToken));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-        }
+    public String googleLogin(@RequestBody String idToken) {
+        return authenticationService.verifyIdToken(idToken);
     }
 }
