@@ -7,7 +7,10 @@ import vn.id.milease.mileaseapi.model.dto.search.PlaceSearchDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlaceDto;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface PlaceService {
+    CompletableFuture<PageResult<PlaceDto>> getPlacesAsync(PlaceSearchDto searchDto);
     PageResult<PlaceDto> getPlaces(PlaceSearchDto searchDto);
 
     PlaceDto addPlace(CreatePlaceDto dto);
@@ -19,4 +22,6 @@ public interface PlaceService {
     PlaceDto getPlacesById(long id);
 
     Place getPlace(long id);
+
+    CompletableFuture<Void> updateDisplayIndex();
 }

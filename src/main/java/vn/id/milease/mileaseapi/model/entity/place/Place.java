@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 import vn.id.milease.mileaseapi.model.entity.Address;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
+import vn.id.milease.mileaseapi.model.entity.Transaction;
 import vn.id.milease.mileaseapi.model.entity.step.Step;
 import vn.id.milease.mileaseapi.model.entity.user.Business;
 
@@ -21,6 +22,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -40,7 +42,8 @@ public class Place extends BaseEntity {
     private LocalTime close;
     private String description;
     @JsonIgnore
-    private int displayIndex;
+    private Long displayIndex;
+    private LocalDateTime createdAt;
     private Float averageDuration;
     @Enumerated(EnumType.STRING)
     private PlaceType type;
@@ -54,4 +57,7 @@ public class Place extends BaseEntity {
     private Business business;
     @OneToMany(mappedBy = "place")
     private List<Step> steps;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lastest_transaction_id")
+    private Transaction lastestTransaction;
 }

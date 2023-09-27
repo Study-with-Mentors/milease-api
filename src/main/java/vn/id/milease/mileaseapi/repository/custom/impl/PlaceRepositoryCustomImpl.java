@@ -5,8 +5,6 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.util.StringUtils;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Repository;
 import vn.id.milease.mileaseapi.model.dto.search.PlaceSearchDto;
 import vn.id.milease.mileaseapi.model.entity.QAddress;
@@ -17,9 +15,6 @@ import vn.id.milease.mileaseapi.repository.custom.PlaceRepositoryCustom;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -37,19 +32,19 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom {
     public Predicate prepareSearchPredicate(PlaceSearchDto search) {
         QPlace place = QPlace.place;
         BooleanBuilder preBuilder = new BooleanBuilder();
-        if(!search.getStatuses().isEmpty()) {
+        if(search.getStatuses() != null && !search.getStatuses().isEmpty()) {
             preBuilder.and(place.status.in(search.getStatuses()));
         }
-        if(!search.getIds().isEmpty()) {
+        if(search.getIds() != null && !search.getIds().isEmpty()) {
             preBuilder.and(place.id.in(search.getIds()));
         }
         if(!StringUtils.isNullOrEmpty(search.getName())) {
             preBuilder.and(place.name.containsIgnoreCase(search.getName()));
         }
-        if(search.getDurationFrom() > 0 && search.getDurationTo() > 0 && search.getDurationFrom() > search.getDurationTo()) {
+        if(search.getDurationTo() > 0 && search.getDurationFrom() > search.getDurationTo()) {
             preBuilder.and(place.averageDuration.between(search.getDurationFrom(), search.getDurationTo()));
         }
-        if(search.getTypes() != null &&!search.getTypes().isEmpty()) {
+        if(search.getTypes() != null && !search.getTypes().isEmpty()) {
             preBuilder.and(place.type.in(search.getTypes()));
         }
         Predicate pre = preBuilder.getValue();
