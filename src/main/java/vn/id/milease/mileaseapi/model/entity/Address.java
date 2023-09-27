@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.id.milease.mileaseapi.model.entity.administrativeunit.Ward;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
-import vn.id.milease.mileaseapi.model.entity.user.User;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -26,10 +25,6 @@ public class Address extends BaseEntity {
     private Ward ward;
 
     private String addressLine;
-
-    @ManyToOne
-    @JoinColumn
-    private User user;
 
     @OneToOne
     private Place place;
