@@ -1,11 +1,15 @@
 package vn.id.milease.mileaseapi.util;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import vn.id.milease.mileaseapi.model.exception.InvalidJwtException;
 import vn.id.milease.mileaseapi.model.entity.user.User;
+import vn.id.milease.mileaseapi.model.exception.JwtExpiredException;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
@@ -66,19 +70,19 @@ public class JwtTokenProvider {
      * Validate the token and throw an exception if it is not valid.
      *
      * @param token the token to validate
-//     * @throws InvalidJwtException if the token is not valid
-//     * @throws JwtExpiredException if the token is expired
+     * @throws InvalidJwtException if the token is not valid
+     * @throws JwtExpiredException if the token is expired
      */
     public void validateToken(String token) {
-        Jwts.parserBuilder()
-                .setSigningKey(JWT_SECRET_KEY)
-                .build()
-                .parseClaimsJws(token);
-        // TODO [Khanh, P1]: Uncomment the below code after setting up exception handler
-//        } catch (ExpiredJwtException ex) {
-//            throw new JwtExpiredException(token, ex);
-//        } catch (JwtException | IllegalArgumentException ex) {
-//            throw new InvalidJwtException(token, ex);
-//        }
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(JWT_SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token);
+        } catch (ExpiredJwtException ex) {
+            throw new JwtExpiredException(token, ex);
+        } catch (JwtException | IllegalArgumentException ex) {
+            throw new InvalidJwtException(token, ex);
+        }
     }
 }

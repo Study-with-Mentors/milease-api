@@ -12,6 +12,8 @@ import vn.id.milease.mileaseapi.model.entity.user.Traveler;
 import vn.id.milease.mileaseapi.model.entity.user.User;
 import vn.id.milease.mileaseapi.model.entity.user.UserRole;
 import vn.id.milease.mileaseapi.model.entity.user.UserStatus;
+import vn.id.milease.mileaseapi.model.exception.AccountLockedException;
+import vn.id.milease.mileaseapi.model.exception.GoogleIdTokenVerificationFailedException;
 import vn.id.milease.mileaseapi.repository.UserRepository;
 import vn.id.milease.mileaseapi.service.AuthenticationService;
 import vn.id.milease.mileaseapi.util.JwtTokenProvider;
@@ -46,14 +48,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-    // TODO [Khanh, P1]: Throw specific exception after setting up exception handler
     @Override
     public String verifyIdToken(String idTokenString) {
         try {
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken == null) {
-//                throw new GoogleIdTokenVerificationFailedException(idTokenString);
-                throw new RuntimeException("GoogleIdTokenVerificationFailedException");
+                throw new GoogleIdTokenVerificationFailedException(idTokenString);
             }
 
             GoogleIdToken.Payload payload = idToken.getPayload();
@@ -69,8 +69,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 userRepository.save(userDetails);
             }
             // Check if account is not locked
-            if (userDetails.isAccountNonExpired() && userDetails.isAccountNonLocked()
-                    && userDetails.isCredentialsNonExpired()) {
+            if (userDetails.getStatus() != UserStatus.LOCKED) {
                 UsernamePasswordAuthenticationToken authentication
                         = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -79,11 +78,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             }
 
             // Account cannot be accessed
-//            throw new AccountLockedException(userDetails);
-            throw new RuntimeException("AccountLockedException");
+            throw new AccountLockedException(userDetails);
         } catch (GeneralSecurityException | IOException e) {
-//            throw new GoogleIdTokenVerificationFailedException(idTokenString, e);
-            throw new RuntimeException("GoogleIdTokenVerificationFailedException");
+            throw new GoogleIdTokenVerificationFailedException(idTokenString, e);
         }
     }
 
