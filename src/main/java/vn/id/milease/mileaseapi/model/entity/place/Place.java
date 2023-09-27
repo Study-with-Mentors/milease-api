@@ -1,14 +1,27 @@
 package vn.id.milease.mileaseapi.model.entity.place;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import vn.id.milease.mileaseapi.model.entity.Address;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
 import vn.id.milease.mileaseapi.model.entity.step.Step;
 import vn.id.milease.mileaseapi.model.entity.user.Business;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -23,8 +36,8 @@ public class Place extends BaseEntity {
     private String name;
     private Float priceLower;
     private Float priceUpper;
-    private LocalDateTime open;
-    private LocalDateTime close;
+    private LocalTime open;
+    private LocalTime close;
     private String description;
     @JsonIgnore
     private int displayIndex;
@@ -33,10 +46,10 @@ public class Place extends BaseEntity {
     private PlaceType type;
     @Enumerated(EnumType.STRING)
     private PlaceStatus status;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private Address address;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id")
     private Business business;
     @OneToMany(mappedBy = "place")

@@ -3,7 +3,6 @@ package vn.id.milease.mileaseapi.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.id.milease.mileaseapi.model.dto.PageResult;
 import vn.id.milease.mileaseapi.model.dto.PlaceDto;
@@ -17,6 +16,7 @@ import vn.id.milease.mileaseapi.model.exception.ConflictException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
 import vn.id.milease.mileaseapi.repository.PlaceRepository;
 import vn.id.milease.mileaseapi.service.PlaceService;
+import vn.id.milease.mileaseapi.service.util.ServiceUtil;
 import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
 
 import javax.transaction.Transactional;
@@ -29,27 +29,22 @@ import java.util.stream.Collectors;
 public class PlaceServiceImpl implements PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceMapper placeMapper;
+    private final Random random = new Random();
+
     @Override
     public PageResult<PlaceDto> getPlaces(PlaceSearchDto searchDto) {
         var predicate = placeRepository.prepareSearchPredicate(searchDto);
-        PageRequest pageRequest = PageRequest.of(
-                searchDto.getPage(),
-                searchDto.getPageSize(),
-                Sort.by(searchDto.getDirection(), searchDto.getOrderBy()));
+
+        PageRequest pageRequest = ServiceUtil.preparePageRequest(searchDto);
         Page<Place> places = placeRepository.findAll(predicate, pageRequest);
-        PageResult<PlaceDto> result = new PageResult<>();
-        result.setValues(places.get()
-                .map(placeMapper::toDto)
-                .toList());
-        result.setTotalPages(places.getTotalPages());
-        result.setTotalCount(places.getTotalElements());
-        result.setCurrentPage(searchDto.getPage());
-        return result;
+        return ServiceUtil.toPageResult(places, placeMapper::toDto, searchDto);
     }
 
     //TODO [Dat, P1]: Validating address and business
     @Override
     public PlaceDto addPlace(CreatePlaceDto dto) {
+        // TODO [Dat, P3] validate open, close time
+        // TODO [Dat, P3] validate lower, upper price
         var entityToAdd = placeMapper.toEntity(dto);
         entityToAdd.setDisplayIndex(calculateDisplayIndex());
         entityToAdd = placeRepository.save(entityToAdd);
@@ -61,7 +56,7 @@ public class PlaceServiceImpl implements PlaceService {
     public PlaceDto updatePlace(UpdatePlaceDto dto) {
         var entityToUpdate = placeRepository.findById(dto.getId())
                 .orElseThrow(() -> new NotFoundException(Place.class, dto.getId()));
-        if(entityToUpdate.getStatus() == PlaceStatus.REMOVE)
+        if (entityToUpdate.getStatus() == PlaceStatus.REMOVE)
             throw new ConflictException(Place.class, ActionConflict.UPDATE, "Cannot update place that has been removed");
         placeMapper.toEntity(dto, entityToUpdate);
         entityToUpdate = placeRepository.save(entityToUpdate);
@@ -73,7 +68,7 @@ public class PlaceServiceImpl implements PlaceService {
     public void deletePlace(long id) {
         var entityToDelete = placeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Place.class, id));
-        if(entityToDelete.getStatus() == PlaceStatus.REMOVE)
+        if (entityToDelete.getStatus() == PlaceStatus.REMOVE)
             throw new NotFoundException(Place.class, id);
         entityToDelete.setStatus(PlaceStatus.REMOVE);
         placeRepository.save(entityToDelete);
@@ -95,12 +90,16 @@ public class PlaceServiceImpl implements PlaceService {
         int numberOfConflict = 10;
         int countConflict = 0;
         while (countConflict < numberOfConflict) {
-            Random random = new Random(Thread.currentThread().getId());
             int index = random.nextInt(Integer.MAX_VALUE);
-            if(!listFind.contains(index))
+            if (!listFind.contains(index))
                 return index;
             countConflict++;
         }
         throw new ConflictException(Place.class, ActionConflict.CREATE, "This is our fault, cannot create displayIndex");
+    }
+
+    public Place getPlace(long id) {
+        return placeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(Place.class, id));
     }
 }

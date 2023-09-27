@@ -11,11 +11,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
 import vn.id.milease.mileaseapi.model.entity.Phone;
 import vn.id.milease.mileaseapi.model.entity.Subscription;
+import vn.id.milease.mileaseapi.model.entity.plan.Plan;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -41,19 +43,22 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @PrimaryKeyJoinColumn
     private Traveler traveler;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @PrimaryKeyJoinColumn
     private Business business;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Subscription subscription;
 
     @OneToMany(mappedBy = "user")
     private List<Phone> phones;
+
+    @OneToMany(mappedBy = "user")
+    private List<Plan> plans;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

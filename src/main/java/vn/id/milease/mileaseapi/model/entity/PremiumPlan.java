@@ -9,7 +9,6 @@ import lombok.Setter;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Table;
 
 @Entity
 @NoArgsConstructor
@@ -19,7 +18,7 @@ import javax.persistence.Table;
 @Setter
 public class PremiumPlan extends BaseEntity {
     private String name;
-    // TODO: Status
+    // TODO [Khanh, P3]: Status
 
     private Double price;
     private Integer duration;
