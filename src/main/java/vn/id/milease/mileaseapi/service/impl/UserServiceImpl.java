@@ -6,6 +6,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import vn.id.milease.mileaseapi.model.entity.user.User;
+import vn.id.milease.mileaseapi.model.exception.ApplicationException;
+import vn.id.milease.mileaseapi.model.exception.UnauthorizedException;
 import vn.id.milease.mileaseapi.repository.UserRepository;
 import vn.id.milease.mileaseapi.service.UserService;
 
@@ -29,6 +31,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getCurrentUser() {
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.findById(user.getId())
+                .orElseThrow(UnauthorizedException::new);
     }
 }
