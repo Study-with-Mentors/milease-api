@@ -18,7 +18,6 @@ import javax.persistence.Enumerated;
 @Setter
 public class PremiumPlan extends BaseEntity {
     private String name;
-    // TODO [Khanh, P3]: Status
 
     private Double price;
     private Integer duration;
