@@ -23,7 +23,6 @@ import vn.id.milease.mileaseapi.util.ApplicationMapper;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
