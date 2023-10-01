@@ -41,6 +41,7 @@ public class Place extends BaseEntity {
     private LocalTime open;
     private LocalTime close;
     private String description;
+    private String image;
     @JsonIgnore
     private Long displayIndex;
     private LocalDateTime createdAt;

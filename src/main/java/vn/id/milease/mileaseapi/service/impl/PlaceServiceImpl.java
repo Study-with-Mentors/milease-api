@@ -62,7 +62,7 @@ public class PlaceServiceImpl implements PlaceService {
         if (dto.getStatus() == null)
             dto.setStatus(PlaceStatus.AVAILABLE);
         var entityToAdd = placeMapper.toEntity(dto);
-        entityToAdd.setDisplayIndex(calculateDisplayIndex());
+        entityToAdd.setDisplayIndex(0L);
         entityToAdd.setCreatedAt(LocalDateTime.now(AppConstant.VN_ZONE_ID));
         entityToAdd = placeRepository.save(entityToAdd);
         return placeMapper.toDto(entityToAdd);
@@ -103,7 +103,7 @@ public class PlaceServiceImpl implements PlaceService {
 
     @Override
     public PlaceDto getPlacesById(long id) {
-        var result = placeRepository.getPlaceById(id)
+        var result = placeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Place.class, id));
         return placeMapper.toDto(result);
     }

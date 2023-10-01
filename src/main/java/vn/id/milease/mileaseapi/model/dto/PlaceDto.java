@@ -27,4 +27,5 @@ public class PlaceDto extends BaseDto {
     private Float averageDuration;
     private PlaceType type;
     private PlaceStatus status;
+    private String image;
 }

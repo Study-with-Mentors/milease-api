@@ -24,6 +24,7 @@ public class PlaceMapper implements Mapper<Place, PlaceDto, CreatePlaceDto, Upda
                 .priceLower(entity.getPriceLower())
                 .priceUpper(entity.getPriceUpper())
                 .status(entity.getStatus())
+                .image(entity.getImage())
                 .build();
         result.setId(entity.getId());
         return result;
@@ -38,6 +39,7 @@ public class PlaceMapper implements Mapper<Place, PlaceDto, CreatePlaceDto, Upda
                 .type(dto.getType())
                 .status(dto.getStatus())
                 .name(dto.getName())
+                .image(dto.getImage())
                 .build();
     }
 
@@ -60,5 +62,7 @@ public class PlaceMapper implements Mapper<Place, PlaceDto, CreatePlaceDto, Upda
             existed.setPriceLower(dto.getPriceLower());
             existed.setPriceUpper(dto.getPriceUpper());
         }
+        if(!Objects.isNull(dto.getImage()))
+            existed.setImage(dto.getImage());
     }
 }

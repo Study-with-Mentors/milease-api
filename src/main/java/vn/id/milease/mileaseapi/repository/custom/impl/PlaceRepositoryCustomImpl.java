@@ -52,17 +52,4 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom {
             pre = Expressions.asBoolean(true).isTrue();
         return pre;
     }
-
-    @Override
-    public Optional<Place> getPlaceById(long id) {
-        QPlace place = QPlace.place;
-        QAddress address = QAddress.address;
-        var builder = new BooleanBuilder()
-                .and(place.id.eq(id)).getValue();
-        return Optional.of(jpaQueryFactory.select(place)
-                .innerJoin(address)
-                .where(builder)
-                .fetchJoin()
-                .fetch().get(0));
-    }
 }
