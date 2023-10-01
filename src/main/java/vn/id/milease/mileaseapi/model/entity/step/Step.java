@@ -18,6 +18,8 @@ public class Step extends BaseEntity {
     private Float duration;
     // TODO [Duy, P3] distance should be refactor (maybe client will call map API to figure out)
     private Float distance;
+    private Float longitude;
+    private Float latitude;
     @ManyToOne
     @JoinColumn
     private Plan plan;

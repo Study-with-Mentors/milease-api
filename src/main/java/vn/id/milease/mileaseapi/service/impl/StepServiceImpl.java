@@ -11,6 +11,7 @@ import vn.id.milease.mileaseapi.model.entity.plan.PlanIdOnly;
 import vn.id.milease.mileaseapi.model.entity.step.Step;
 import vn.id.milease.mileaseapi.model.entity.step.StepIdOnly;
 import vn.id.milease.mileaseapi.model.exception.ArgumentsException;
+import vn.id.milease.mileaseapi.model.exception.BadRequestException;
 import vn.id.milease.mileaseapi.model.exception.ConflictException;
 import vn.id.milease.mileaseapi.model.exception.NotFoundException;
 import vn.id.milease.mileaseapi.repository.PlanRepository;
@@ -22,6 +23,7 @@ import vn.id.milease.mileaseapi.util.ApplicationMapper;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -112,8 +114,16 @@ public class StepServiceImpl implements StepService {
         stepRepository.updateStepPosition(step2);
     }
 
+    //TODO [Dat, P4]: More validation for geo
+    private void validateGeometric(Float longitude, Float latitude) {
+        if ((longitude == null && latitude != null) || (longitude != null && latitude == null))
+            throw new BadRequestException("Longitude and Latitude of %s both must be null or have value");
+    }
+
     @Override
     public StepDto addStep(CreateStepDto dto) {
+        validateGeometric(dto.getLongitude(), dto.getLatitude());
+
         Place place = placeService.getPlace(dto.getPlaceId());
 
         Step stepEntity = mapper.getStepMapper().toEntity(dto);
@@ -161,6 +171,7 @@ public class StepServiceImpl implements StepService {
 
     @Override
     public StepDto updateStep(UpdateStepDto dto) {
+        validateGeometric(dto.getLongitude(), dto.getLatitude());
         Step step = getStep(dto.getId());
         planService.checkCurrentUserPermission(step.getPlan());
         mapper.getStepMapper().toEntity(dto, step);

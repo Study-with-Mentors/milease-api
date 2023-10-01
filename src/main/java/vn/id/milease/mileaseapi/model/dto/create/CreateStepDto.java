@@ -29,4 +29,6 @@ public class CreateStepDto {
      */
     private Float duration;
     private Float distance;
+    private Float longitude;
+    private Float latitude;
 }

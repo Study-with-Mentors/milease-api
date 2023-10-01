@@ -9,4 +9,6 @@ import vn.id.milease.mileaseapi.model.dto.BaseDto;
 public class UpdateStepDto extends BaseDto {
     private Float duration;
     private Float distance;
+    private Float longitude;
+    private Float latitude;
 }
