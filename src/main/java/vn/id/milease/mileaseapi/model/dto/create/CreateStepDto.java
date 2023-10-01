@@ -5,9 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import vn.id.milease.mileaseapi.model.entity.step.StepType;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
 @Getter
 @Setter
 public class CreateStepDto {
@@ -19,8 +16,6 @@ public class CreateStepDto {
      */
     private Long previousStepId;
     // TODO [Duy, P3] placeId can be null if step type is Transport
-    @NotNull
-    @Min(1)
     private long placeId;
     // TODO [Duy, P3] further specify if we can create/update type of step
     private StepType type;
@@ -31,4 +26,5 @@ public class CreateStepDto {
     private Float distance;
     private Float longitude;
     private Float latitude;
+    private String placeName;
 }

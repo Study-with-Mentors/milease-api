@@ -170,7 +170,6 @@ public class StepServiceImpl implements StepService {
 
     @Override
     public StepDto updateStep(UpdateStepDto dto) {
-        validateGeometric(dto.getLongitude(), dto.getLatitude());
         Step step = getStep(dto.getId());
         planService.checkCurrentUserPermission(step.getPlan());
         mapper.getStepMapper().toEntity(dto, step);
