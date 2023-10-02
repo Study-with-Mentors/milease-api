@@ -19,7 +19,7 @@ public class CreatePlaceDto {
     private float averageDuration;
     private PlaceType type = PlaceType.ENTERTAINMENT;
     private PlaceStatus status;
-    private String image;
+    private String imageUrl;
     private long addressId;
     private long businessId;
 }
