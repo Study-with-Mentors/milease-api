@@ -1,11 +1,6 @@
 package vn.id.milease.mileaseapi.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceStatus;
 import vn.id.milease.mileaseapi.model.entity.place.PlaceType;
 
@@ -27,4 +22,5 @@ public class PlaceDto extends BaseDto {
     private Float averageDuration;
     private PlaceType type;
     private PlaceStatus status;
+    private String imageUrl;
 }

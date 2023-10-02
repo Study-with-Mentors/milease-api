@@ -8,5 +8,4 @@ import java.util.Optional;
 
 public interface PlaceRepositoryCustom {
     Predicate prepareSearchPredicate(PlaceSearchDto search);
-    Optional<Place> getPlaceById(long id);
 }

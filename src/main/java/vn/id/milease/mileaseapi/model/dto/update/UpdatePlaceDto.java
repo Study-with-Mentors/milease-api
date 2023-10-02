@@ -27,6 +27,8 @@ public class UpdatePlaceDto extends BaseDto {
     private PlaceType type;
     @Nullable
     private PlaceStatus status;
+    @Nullable
+    private String imageUrl;
     private long addressId;
     private long businessId;
 }
