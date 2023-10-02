@@ -13,6 +13,7 @@ import java.util.Objects;
 public class PlaceMapper implements Mapper<Place, PlaceDto, CreatePlaceDto, UpdatePlaceDto> {
 
     //TODO [Dat, P3]: Mapping address, business.
+    @Override
     public PlaceDto toDto(Place entity) {
         var result = PlaceDto.builder()
                 .name(entity.getName())
@@ -24,12 +25,13 @@ public class PlaceMapper implements Mapper<Place, PlaceDto, CreatePlaceDto, Upda
                 .priceLower(entity.getPriceLower())
                 .priceUpper(entity.getPriceUpper())
                 .status(entity.getStatus())
-                .image(entity.getImage())
+                .image(entity.getImageUrl())
                 .build();
         result.setId(entity.getId());
         return result;
     }
 
+    @Override
     public Place toEntity(CreatePlaceDto dto) {
         return Place.builder()
                 .averageDuration(dto.getAverageDuration())
@@ -39,30 +41,31 @@ public class PlaceMapper implements Mapper<Place, PlaceDto, CreatePlaceDto, Upda
                 .type(dto.getType())
                 .status(dto.getStatus())
                 .name(dto.getName())
-                .image(dto.getImage())
+                .imageUrl(dto.getImage())
                 .build();
     }
 
+    @Override
     public void toEntity(UpdatePlaceDto dto, Place existed) {
-        if(!StringUtils.isNullOrEmpty(dto.getDescription()))
+        if (!StringUtils.isNullOrEmpty(dto.getDescription()))
             existed.setDescription(dto.getDescription());
-        if(!StringUtils.isNullOrEmpty(dto.getName()))
+        if (!StringUtils.isNullOrEmpty(dto.getName()))
             existed.setName(dto.getName());
-        if(!Objects.isNull(dto.getStatus()))
+        if (!Objects.isNull(dto.getStatus()))
             existed.setStatus(dto.getStatus());
-        if(!Objects.isNull(dto.getType()))
+        if (!Objects.isNull(dto.getType()))
             existed.setType(dto.getType());
-        if(!Objects.isNull(dto.getOpen())) {
+        if (!Objects.isNull(dto.getOpen())) {
             existed.setOpen(dto.getOpen());
-            if(!Objects.isNull(dto.getClose()) && !dto.getClose().isBefore(dto.getOpen())) {
+            if (!Objects.isNull(dto.getClose()) && !dto.getClose().isBefore(dto.getOpen())) {
                 existed.setClose(dto.getClose());
             }
         }
-        if(dto.getPriceLower() > 0 && dto.getPriceUpper() > dto.getPriceLower()) {
+        if (dto.getPriceLower() > 0 && dto.getPriceUpper() > dto.getPriceLower()) {
             existed.setPriceLower(dto.getPriceLower());
             existed.setPriceUpper(dto.getPriceUpper());
         }
-        if(!Objects.isNull(dto.getImage()))
-            existed.setImage(dto.getImage());
+        if (!Objects.isNull(dto.getImage()))
+            existed.setImageUrl(dto.getImage());
     }
 }
