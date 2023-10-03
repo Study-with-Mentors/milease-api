@@ -25,6 +25,7 @@ public class Step extends BaseEntity {
     private Float longitude;
     private Float latitude;
     private String placeName;
+    private String addressString;
     @ManyToOne
     @JoinColumn
     private Plan plan;
