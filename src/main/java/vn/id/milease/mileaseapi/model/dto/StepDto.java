@@ -13,4 +13,8 @@ public class StepDto extends BaseDto {
     private Long nextStepId;
     private Long previousStepId;
     private PlaceDto place;
+    private Float longitude;
+    private Float latitude;
+    private String placeName;
+    private String addressString;
 }

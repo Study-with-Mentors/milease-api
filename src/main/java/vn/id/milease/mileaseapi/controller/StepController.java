@@ -31,6 +31,18 @@ public class StepController {
         return stepService.updateStep(dto);
     }
 
+    /**
+     * For list 1 -> 2 -> 3 -> 4, if we want to move 4 to between 1 and 2, we will call /api/steps/4/move/1
+     * if we want to move to head we will call /api/steps/4/move/0
+     *
+     * @param id   step to move
+     * @param toId the position of new step
+     */
+    @PutMapping("/{id}/move/{toId}")
+    public void updateStep(@PathVariable long id, @PathVariable long toId) {
+        stepService.moveStep(id, toId);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStep(@PathVariable long id) {
         stepService.deleteStep(id);

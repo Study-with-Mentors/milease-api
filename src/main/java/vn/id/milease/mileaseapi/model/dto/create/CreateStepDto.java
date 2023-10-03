@@ -27,4 +27,5 @@ public class CreateStepDto {
     private Float longitude;
     private Float latitude;
     private String placeName;
+    private String addressString;
 }

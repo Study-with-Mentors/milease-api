@@ -51,7 +51,6 @@ public class PlanController {
         return stepService.addStep(dto);
     }
 
-
     @PostMapping
     public PlanDto addPlan(@RequestBody CreatePlanDto dto) {
         return planService.addPlan(dto);
