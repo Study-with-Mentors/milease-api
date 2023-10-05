@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import vn.id.milease.mileaseapi.model.dto.StepDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateStepDto;
+import vn.id.milease.mileaseapi.model.dto.create.CreateTailStepDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdateStepDto;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.plan.Plan;
@@ -182,15 +183,14 @@ public class StepServiceImpl implements StepService {
         validateGeometric(dto.getLongitude(), dto.getLatitude());
 
         Place place = placeRepository.findById(dto.getPlaceId()).orElse(null);
+        PlanIdOnly plan = planService.getPlanIdOnly(dto.getPlanId());
+        planService.checkCurrentUserPermission(plan);
 
         Step stepEntity = mapper.getStepMapper().toEntity(dto);
         stepEntity.setPlace(place);
         stepEntity.setId(0L);
         stepEntity = stepRepository.save(stepEntity);
         StepIdOnly step = getStepIdOnly(stepEntity.getId());
-
-        PlanIdOnly plan = planService.getPlanIdOnly(dto.getPlanId());
-        planService.checkCurrentUserPermission(plan);
         step.setPlan(plan);
 
         if (dto.getPreviousStepId() == null) {
@@ -224,6 +224,16 @@ public class StepServiceImpl implements StepService {
         resultDto.setNextStepId(step.getNextStepId());
         resultDto.setPreviousStepId(step.getPreviousStepId());
         return resultDto;
+    }
+
+    @Override
+    public StepDto addTailStep(CreateTailStepDto dto) {
+        CreateStepDto createDto = mapper.getStepMapper().toCreateDto(dto);
+        StepIdOnly lastStep = getLastStepOfPlan(dto.getPlanId());
+        if (lastStep != null) {
+            createDto.setPreviousStepId(lastStep.getId());
+        }
+        return addStep(createDto);
     }
 
     @Override
@@ -269,5 +279,10 @@ public class StepServiceImpl implements StepService {
 
     private StepIdOnly getStepIdOnly(long id) {
         return stepRepository.findIdOnlyById(id).orElseThrow(() -> new NotFoundException(Step.class, id));
+    }
+
+    @Override
+    public StepIdOnly getLastStepOfPlan(long planId) {
+        return stepRepository.findStepByPlanIdAndNextStepIdIsNull(planId).orElse(null);
     }
 }

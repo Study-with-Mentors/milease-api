@@ -34,7 +34,6 @@ public class StepRepositoryCustomImpl implements StepRepositoryCustom {
 
     @Override
     public void updatePreviousStepById(Long id, Long previousStepId) {
-
         QStep step = QStep.step;
         JPAUpdateClause jpaUpdateClause = new JPAUpdateClause(em, QStep.step);
         jpaUpdateClause.set(step.previousStep.id, previousStepId)
