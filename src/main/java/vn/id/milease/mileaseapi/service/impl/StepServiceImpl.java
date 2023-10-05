@@ -64,6 +64,9 @@ public class StepServiceImpl implements StepService {
     public List<StepDto> getStepByPlanId(long planId) {
         Plan plan = planService.getPlan(planId);
         planService.checkCurrentUserPermission(plan);
+        if (plan.getFirstStep() == null) {
+            return new ArrayList<>();
+        }
         List<Step> steps = plan.getSteps();
         HashMap<Long, Step> stepDictionary = new HashMap<>();
         for (Step step : steps) {
