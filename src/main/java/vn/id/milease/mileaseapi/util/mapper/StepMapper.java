@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 import vn.id.milease.mileaseapi.model.dto.StepDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateStepDto;
+import vn.id.milease.mileaseapi.model.dto.create.CreateTailStepDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdateStepDto;
 import vn.id.milease.mileaseapi.model.entity.step.Step;
 
@@ -32,5 +33,9 @@ public class StepMapper implements Mapper<Step, StepDto, CreateStepDto, UpdateSt
     @Override
     public StepDto toDto(Step step) {
         return mapper.map(step, StepDto.class);
+    }
+
+    public CreateStepDto toCreateDto(CreateTailStepDto dto) {
+        return mapper.map(dto, CreateStepDto.class);
     }
 }
