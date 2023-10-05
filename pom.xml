@@ -10,7 +10,7 @@
     </parent>
     <groupId>vn.id.milease</groupId>
     <artifactId>milease-api</artifactId>
-    <version>0.2.2</version>
+    <version>0.2.3</version>
     <name>milease-api</name>
     <description>milease-api</description>
     <properties>
