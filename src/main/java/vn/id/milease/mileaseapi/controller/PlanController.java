@@ -1,5 +1,6 @@
 package vn.id.milease.mileaseapi.controller;
 
+import com.google.maps.errors.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import vn.id.milease.mileaseapi.model.dto.update.UpdatePlanDto;
 import vn.id.milease.mileaseapi.service.PlanService;
 import vn.id.milease.mileaseapi.service.StepService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -66,5 +68,10 @@ public class PlanController {
     public ResponseEntity<Void> deletePlan(@PathVariable long id) {
         planService.deletePlan(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/{id}/steps/optimize")
+    public List<StepDto> optimizeSteps(@PathVariable long id) throws IOException, InterruptedException, ApiException {
+        return stepService.optimizePlan(id);
     }
 }
