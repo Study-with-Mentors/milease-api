@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -36,7 +35,7 @@ public class TravelerServiceImpl implements TravelerService {
     public List<TravelerTransactionDto> getCurrentTravelerTransaction() {
         var traveler = getCurrentTraveler();
         var transactions = transactionRepository.findAllByTraveler(traveler);
-        return transactions.stream().map(TravelerTransactionMapper::toDto).collect(Collectors.toList());
+        return transactions.stream().map(TravelerTransactionMapper::toDto).toList();
     }
 
     @Override

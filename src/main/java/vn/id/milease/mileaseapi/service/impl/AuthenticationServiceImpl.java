@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import vn.id.milease.mileaseapi.model.entity.user.Traveler;
+import vn.id.milease.mileaseapi.model.entity.user.TravelerStatus;
 import vn.id.milease.mileaseapi.model.entity.user.User;
 import vn.id.milease.mileaseapi.model.entity.user.UserRole;
 import vn.id.milease.mileaseapi.model.entity.user.UserStatus;
@@ -27,10 +28,10 @@ import java.util.Collections;
 @Service
 @Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
-    @Value("${app.google.client-id}")
-    private String clientId;
     private final UserRepository userRepository;
     private final JwtTokenProvider tokenProvider;
+    @Value("${app.google.client-id}")
+    private String clientId;
     private GoogleIdTokenVerifier verifier;
 
     public AuthenticationServiceImpl(UserRepository userRepository, JwtTokenProvider tokenProvider) {
@@ -52,9 +53,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public String verifyIdToken(String idTokenString) {
         try {
             GoogleIdToken idToken = verifier.verify(idTokenString);
-            if (idToken == null) {
-                throw new GoogleIdTokenVerificationFailedException(idTokenString);
-            }
+            if (idToken == null) throw new GoogleIdTokenVerificationFailedException(idTokenString);
 
             GoogleIdToken.Payload payload = idToken.getPayload();
             String email = payload.getEmail();
@@ -88,6 +87,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Traveler traveler = Traveler.builder()
                 .firstName((String) payload.get("given_name"))
                 .lastName((String) payload.get("family_name"))
+                .status(TravelerStatus.NORMAL)
                 .build();
         User user = User.builder()
                 .traveler(traveler)
