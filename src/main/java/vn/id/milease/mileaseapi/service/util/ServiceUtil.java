@@ -54,4 +54,17 @@ public class ServiceUtil {
             timeInterval = Math.abs(Duration.between(currentTime, place.getCreatedAt()).getSeconds());
         return -timeInterval + bonus;
     }
+
+    public static String generatePaymentQr(String bankId, String bankNumber, long price, String info) {
+        return new StringBuilder("https://img.vietqr.io/image/")
+                .append(bankId)
+                .append("-")
+                .append(bankNumber)
+                .append("-compact2.jpg?amount=")
+                .append(price)
+                .append("&addInfo=")
+                .append(info)
+                .toString();
+    }
+
 }
