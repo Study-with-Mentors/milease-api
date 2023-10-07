@@ -5,12 +5,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.id.milease.mileaseapi.model.dto.TravelerTransactionDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateTravelerTransactionDto;
 import vn.id.milease.mileaseapi.service.TravelerService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -33,7 +36,7 @@ public class TravelerController {
     }
 
     @PutMapping("/status")
-    public ResponseEntity<Void> updateTravelersStatus(List<Long> ids) {
+    public ResponseEntity<Void> updateTravelersStatus(@RequestBody @Valid @NotNull List<Long> ids) {
         travelerService.updateTravelerStatus(ids).thenApply(t -> t).join();
         return ResponseEntity.noContent().build();
     }

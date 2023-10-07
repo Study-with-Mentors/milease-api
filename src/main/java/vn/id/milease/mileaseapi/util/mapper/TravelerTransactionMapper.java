@@ -9,6 +9,7 @@ public class TravelerTransactionMapper {
                 .amount(entity.getAmount())
                 .createdAt(entity.getCreatedAt())
                 .build();
+        result.setId(entity.getId());
         if (entity.getOldTransaction() != null)
             result.setOldTransactionId(entity.getOldTransaction().getId());
         return result;

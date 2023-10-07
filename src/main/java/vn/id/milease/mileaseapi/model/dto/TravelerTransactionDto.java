@@ -16,6 +16,6 @@ import java.time.LocalDateTime;
 public class TravelerTransactionDto extends BaseDto {
     private LocalDateTime createdAt;
     private float amount;
-    private long oldTransactionId;
+    private Long oldTransactionId;
 
 }

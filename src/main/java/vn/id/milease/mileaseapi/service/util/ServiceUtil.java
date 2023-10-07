@@ -62,7 +62,7 @@ public class ServiceUtil {
                 .append(bankNumber)
                 .append("-compact2.jpg?amount=")
                 .append(price)
-                .append("&addInfo")
+                .append("&addInfo=")
                 .append(info)
                 .toString();
     }
