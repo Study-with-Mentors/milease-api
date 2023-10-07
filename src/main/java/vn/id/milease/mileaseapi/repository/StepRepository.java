@@ -17,4 +17,5 @@ public interface StepRepository extends JpaRepository<Step, Long>, QuerydslPredi
     Optional<StepIdOnly> findIdOnlyById(long id);
 
     // TODO [Duy, P3] refactor so that the select sql will not join nextStep and prevStep
+    Optional<StepIdOnly> findStepByPlanIdAndNextStepIdIsNull(Long planId);
 }

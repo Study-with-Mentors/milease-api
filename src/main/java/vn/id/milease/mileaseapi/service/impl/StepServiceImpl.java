@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vn.id.milease.mileaseapi.model.dto.StepDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateStepDto;
+import vn.id.milease.mileaseapi.model.dto.create.CreateTailStepDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdateStepDto;
 import vn.id.milease.mileaseapi.model.entity.place.Place;
 import vn.id.milease.mileaseapi.model.entity.plan.Plan;
@@ -174,8 +175,9 @@ public class StepServiceImpl implements StepService {
 
     //TODO [Dat, P4]: More validation for geo
     private void validateGeometric(Float longitude, Float latitude) {
-        if ((longitude == null && latitude != null) || (longitude != null && latitude == null))
+        if ((longitude == null && latitude != null) || (longitude != null && latitude == null)) {
             throw new BadRequestException("Longitude and Latitude of %s both must be null or have value");
+        }
     }
 
     @Override
@@ -183,15 +185,14 @@ public class StepServiceImpl implements StepService {
         validateGeometric(dto.getLongitude(), dto.getLatitude());
 
         Place place = placeRepository.findById(dto.getPlaceId()).orElse(null);
+        PlanIdOnly plan = planService.getPlanIdOnly(dto.getPlanId());
+        planService.checkCurrentUserPermission(plan);
 
         Step stepEntity = mapper.getStepMapper().toEntity(dto);
         stepEntity.setPlace(place);
         stepEntity.setId(0L);
         stepEntity = stepRepository.save(stepEntity);
         StepIdOnly step = getStepIdOnly(stepEntity.getId());
-
-        PlanIdOnly plan = planService.getPlanIdOnly(dto.getPlanId());
-        planService.checkCurrentUserPermission(plan);
         step.setPlan(plan);
 
         if (dto.getPreviousStepId() == null) {
@@ -225,6 +226,16 @@ public class StepServiceImpl implements StepService {
         resultDto.setNextStepId(step.getNextStepId());
         resultDto.setPreviousStepId(step.getPreviousStepId());
         return resultDto;
+    }
+
+    @Override
+    public StepDto addTailStep(CreateTailStepDto dto) {
+        CreateStepDto createDto = mapper.getStepMapper().toCreateDto(dto);
+        StepIdOnly lastStep = getLastStepOfPlan(dto.getPlanId());
+        if (lastStep != null) {
+            createDto.setPreviousStepId(lastStep.getId());
+        }
+        return addStep(createDto);
     }
 
     @Override
@@ -348,5 +359,9 @@ public class StepServiceImpl implements StepService {
             currentStep = currentStep.getNextStep();
         }
         return steps;
+    }
+
+    public StepIdOnly getLastStepOfPlan(long planId) {
+        return stepRepository.findStepByPlanIdAndNextStepIdIsNull(planId).orElse(null);
     }
 }

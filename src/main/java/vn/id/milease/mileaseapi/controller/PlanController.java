@@ -17,6 +17,7 @@ import vn.id.milease.mileaseapi.model.dto.PlanDto;
 import vn.id.milease.mileaseapi.model.dto.StepDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreatePlanDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateStepDto;
+import vn.id.milease.mileaseapi.model.dto.create.CreateTailStepDto;
 import vn.id.milease.mileaseapi.model.dto.search.PlanSearchDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlanDto;
 import vn.id.milease.mileaseapi.service.PlanService;
@@ -51,6 +52,12 @@ public class PlanController {
     public StepDto addStepToPlan(@PathVariable long id, @RequestBody CreateStepDto dto) {
         dto.setPlanId(id);
         return stepService.addStep(dto);
+    }
+
+    @PostMapping("/{id}/steps/last")
+    public StepDto addStepToPlanTail(@PathVariable long id, @RequestBody CreateTailStepDto dto) {
+        dto.setPlanId(id);
+        return stepService.addTailStep(dto);
     }
 
     @PostMapping
