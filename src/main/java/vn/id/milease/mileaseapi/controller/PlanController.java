@@ -70,7 +70,7 @@ public class PlanController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/{id}/steps/optimize")
+    @PutMapping("/{id}/optimize")
     public List<StepDto> optimizeSteps(@PathVariable long id) throws IOException, InterruptedException, ApiException {
         return stepService.optimizePlan(id);
     }

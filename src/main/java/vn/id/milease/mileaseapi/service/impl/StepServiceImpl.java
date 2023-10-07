@@ -334,7 +334,7 @@ public class StepServiceImpl implements StepService {
         lastStep.setDistance((float) legs[legs.length - 1].distance.inMeters);
         optimizedSteps.add(lastStep);
 
-//        stepRepository.saveAll(optimizedSteps);
+        stepRepository.saveAll(optimizedSteps);
         return optimizedSteps.stream()
                 .map(mapper.getStepMapper()::toDto)
                 .toList();

@@ -26,7 +26,6 @@ public class Step extends BaseEntity {
     private Float duration;
     /**
      * Stopover duration in second.
-     * 0 or null if this is the first or last step.
      */
     private Float stopoverDuration;
     // TODO [Duy, P3] distance should be refactor (maybe client will call map API to figure out)
