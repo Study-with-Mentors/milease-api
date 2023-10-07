@@ -1,0 +1,95 @@
+package vn.id.milease.mileaseapi.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import vn.id.milease.mileaseapi.configuration.AppConstant;
+import vn.id.milease.mileaseapi.model.dto.TravelerTransactionDto;
+import vn.id.milease.mileaseapi.model.dto.create.CreateTravelerTransactionDto;
+import vn.id.milease.mileaseapi.model.entity.user.Traveler;
+import vn.id.milease.mileaseapi.model.entity.user.TravelerStatus;
+import vn.id.milease.mileaseapi.model.entity.user.TravelerTransaction;
+import vn.id.milease.mileaseapi.model.exception.UnauthorizedException;
+import vn.id.milease.mileaseapi.repository.TravelerRepository;
+import vn.id.milease.mileaseapi.repository.TravelerTransactionRepository;
+import vn.id.milease.mileaseapi.service.TravelerService;
+import vn.id.milease.mileaseapi.service.UserService;
+import vn.id.milease.mileaseapi.service.util.ServiceUtil;
+import vn.id.milease.mileaseapi.util.mapper.TravelerTransactionMapper;
+
+import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+@Transactional
+@Service
+@RequiredArgsConstructor
+public class TravelerServiceImpl implements TravelerService {
+    private final UserService userService;
+    private final TravelerTransactionRepository transactionRepository;
+    private final TravelerRepository travelerRepository;
+
+    @Override
+    public List<TravelerTransactionDto> getCurrentTravelerTransaction() {
+        var traveler = getCurrentTraveler();
+        var transactions = transactionRepository.findAllByTraveler(traveler);
+        return transactions.stream().map(TravelerTransactionMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public String toPremium(CreateTravelerTransactionDto dto) {
+        var traveler = getCurrentTraveler();
+        var entityToAdd = TravelerTransaction.builder()
+                .traveler(traveler)
+                .createdAt(LocalDateTime.now(AppConstant.VN_ZONE_ID))
+                .amount(dto.getAmount())
+                .build();
+        if (traveler.getLatestTransaction() != null) entityToAdd.setOldTransaction(traveler.getLatestTransaction());
+        traveler.setLatestTransaction(entityToAdd);
+        entityToAdd = transactionRepository.save(entityToAdd);
+        travelerRepository.save(traveler);
+
+        return ServiceUtil.generatePaymentQr(AppConstant.BANK_ID, AppConstant.BANK_NUMBER, Math.round(entityToAdd.getAmount()), "Transaction id: " + entityToAdd.getId());
+    }
+
+    @Override
+    @Async
+    public CompletableFuture<Void> updateTravelerStatus(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return updateTravelerStatus();
+        updateTravelerStatus((ArrayList<Long>) ids);
+        return null;
+    }
+
+    private void updateTravelerStatus(ArrayList<Long> ids) {
+        var travelers = travelerRepository.findAllById(ids);
+        for (var traveler : travelers) {
+            traveler.setStatus(TravelerStatus.PREMIUM);
+            traveler.setPremiumExpiredDate(LocalDateTime.now(AppConstant.VN_ZONE_ID).plusDays(30));
+        }
+        travelerRepository.saveAll(travelers);
+    }
+
+    private CompletableFuture<Void> updateTravelerStatus() {
+        return CompletableFuture.supplyAsync(() -> {
+            var travelers = travelerRepository.findAllByStatus(TravelerStatus.PREMIUM);
+            long numberOfUpdatedUsers = 0;
+            for (var traveler : travelers)
+                if (traveler.getPremiumExpiredDate() != null && traveler.getPremiumExpiredDate().isAfter(LocalDateTime.now(AppConstant.VN_ZONE_ID))) {
+                    numberOfUpdatedUsers++;
+                    traveler.setStatus(TravelerStatus.NORMAL);
+                }
+            if (numberOfUpdatedUsers > 0)
+                travelerRepository.saveAll(travelers);
+            return null;
+        });
+    }
+
+    private Traveler getCurrentTraveler() {
+        var user = userService.getCurrentUser();
+        return travelerRepository.findById(user.getId())
+                .orElseThrow(UnauthorizedException::new);
+    }
+}

@@ -6,6 +6,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import vn.id.milease.mileaseapi.service.PlaceService;
+import vn.id.milease.mileaseapi.service.TravelerService;
 
 @Slf4j
 @EnableScheduling
@@ -13,12 +14,17 @@ import vn.id.milease.mileaseapi.service.PlaceService;
 @Component
 public class BackgroundRunner {
     private final PlaceService placeService;
+    private final TravelerService travelerService;
 
     @Scheduled(cron = "@daily", zone = "Asia/Ho_Chi_Minh")
     public void updateDisplayIndexScheduleTask() {
-        log.info("Test Scheduler");
         placeService.updateDisplayIndex()
                 .thenApply(r -> r)
                 .join();
+    }
+
+    @Scheduled(cron = "@daily", zone = "Asia/Ho_Chi_Minh")
+    public void updateTravelerStatus() {
+        travelerService.updateTravelerStatus(null).thenApply(t -> t).join();
     }
 }
