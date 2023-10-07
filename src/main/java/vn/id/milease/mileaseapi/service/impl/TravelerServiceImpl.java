@@ -74,13 +74,18 @@ public class TravelerServiceImpl implements TravelerService {
 
     private CompletableFuture<Void> updateTravelerStatus() {
         return CompletableFuture.supplyAsync(() -> {
-            var travelers = travelerRepository.findAllByStatus(TravelerStatus.PREMIUM);
+            var travelers = travelerRepository.findAll();
             long numberOfUpdatedUsers = 0;
-            for (var traveler : travelers)
-                if (traveler.getPremiumExpiredDate() != null && traveler.getPremiumExpiredDate().isAfter(LocalDateTime.now(AppConstant.VN_ZONE_ID))) {
+            for (var traveler : travelers) {
+                if (traveler.getPremiumExpiredDate() != null && traveler.getPremiumExpiredDate().isAfter(LocalDateTime.now(AppConstant.VN_ZONE_ID)) && (traveler.getStatus() == TravelerStatus.PREMIUM)) {
                     numberOfUpdatedUsers++;
                     traveler.setStatus(TravelerStatus.NORMAL);
                 }
+                if (traveler.getPremiumExpiredDate() != null && traveler.getPremiumExpiredDate().isBefore(LocalDateTime.now(AppConstant.VN_ZONE_ID)) && (traveler.getStatus() == TravelerStatus.NORMAL)) {
+                    numberOfUpdatedUsers++;
+                    traveler.setStatus(TravelerStatus.PREMIUM);
+                }
+            }
             if (numberOfUpdatedUsers > 0)
                 travelerRepository.saveAll(travelers);
             return null;
