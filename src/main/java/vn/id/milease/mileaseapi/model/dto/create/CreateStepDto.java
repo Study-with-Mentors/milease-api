@@ -11,8 +11,9 @@ public class CreateStepDto {
     @JsonIgnore // plan id is get from the endpoint
     private long planId;
     /**
-     * the <code>prevStepId</code> indicate the next step of <code>prevStepId</code> is the newly created step
-     * <code>null</code> <code>prevStepId</code> indicate the newly created step will be the head of plan
+     * The <code>previousStepId</code> indicates that this newly created step
+     * is the next step of <code>previousStepId.</code><br>
+     * <code>null</code> <code>previousStepId</code> indicates that this newly created step is the head of the plan.
      */
     private Long previousStepId;
     // TODO [Duy, P3] placeId can be null if step type is Transport
@@ -23,6 +24,7 @@ public class CreateStepDto {
      * <code>null</code> duration means the system will use the average duration of place
      */
     private Float duration;
+    private Float stopoverDuration;
     private Float distance;
     private Float longitude;
     private Float latitude;

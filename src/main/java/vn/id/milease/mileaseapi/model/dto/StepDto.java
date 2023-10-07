@@ -9,6 +9,7 @@ import vn.id.milease.mileaseapi.model.entity.step.StepType;
 public class StepDto extends BaseDto {
     private StepType type;
     private Float duration;
+    private Float stopoverDuration;
     private Float distance;
     private Long nextStepId;
     private Long previousStepId;

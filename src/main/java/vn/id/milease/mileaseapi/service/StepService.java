@@ -1,11 +1,13 @@
 package vn.id.milease.mileaseapi.service;
 
+import com.google.maps.errors.ApiException;
 import vn.id.milease.mileaseapi.model.dto.StepDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateStepDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateTailStepDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdateStepDto;
 import vn.id.milease.mileaseapi.model.entity.step.StepIdOnly;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface StepService {
@@ -25,6 +27,8 @@ public interface StepService {
     StepDto updateStep(UpdateStepDto dto);
 
     void deleteStep(long id);
+
+    List<StepDto> optimizePlan(long planId) throws IOException, InterruptedException, ApiException;
 
     StepIdOnly getLastStepOfPlan(long planId);
 }

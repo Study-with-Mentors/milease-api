@@ -20,6 +20,7 @@ public class CreateTailStepDto {
      * <code>null</code> duration means the system will use the average duration of place
      */
     private Float duration;
+    private Float stopoverDuration;
     private Float distance;
     private Float longitude;
     private Float latitude;

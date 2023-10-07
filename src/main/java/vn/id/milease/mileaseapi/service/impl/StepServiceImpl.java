@@ -1,6 +1,14 @@
 package vn.id.milease.mileaseapi.service.impl;
 
+import com.google.maps.DirectionsApi;
+import com.google.maps.GeoApiContext;
+import com.google.maps.errors.ApiException;
+import com.google.maps.model.DirectionsLeg;
+import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.LatLng;
+import com.google.maps.model.TravelMode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vn.id.milease.mileaseapi.model.dto.StepDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateStepDto;
@@ -23,9 +31,13 @@ import vn.id.milease.mileaseapi.service.StepService;
 import vn.id.milease.mileaseapi.util.ApplicationMapper;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -36,6 +48,9 @@ public class StepServiceImpl implements StepService {
     private final PlanService planService;
     private final PlaceRepository placeRepository;
     private final ApplicationMapper mapper;
+
+    @Value("${app.google.maps.api-key}")
+    private String googleMapsApiKey;
 
     private void linkStep(StepIdOnly step, Long prevStepId, Long nextStepId) {
         linkPreviousStep(step, prevStepId);
@@ -65,21 +80,7 @@ public class StepServiceImpl implements StepService {
     public List<StepDto> getStepByPlanId(long planId) {
         Plan plan = planService.getPlan(planId);
         planService.checkCurrentUserPermission(plan);
-        if (plan.getFirstStep() == null) {
-            return new ArrayList<>();
-        }
-        List<Step> steps = plan.getSteps();
-        HashMap<Long, Step> stepDictionary = new HashMap<>();
-        for (Step step : steps) {
-            stepDictionary.put(step.getId(), step);
-        }
-        List<Step> orderSteps = new ArrayList<>(steps.size());
-        Step currentStep = plan.getFirstStep();
-        orderSteps.add(currentStep);
-        while (currentStep.getNextStep() != null) {
-            currentStep = stepDictionary.get(currentStep.getNextStep().getId());
-            orderSteps.add(currentStep);
-        }
+        List<Step> orderSteps = orderSteps(plan.getFirstStep());
         return orderSteps.stream()
                 .map(mapper.getStepMapper()::toDto)
                 .toList();
@@ -174,8 +175,9 @@ public class StepServiceImpl implements StepService {
 
     //TODO [Dat, P4]: More validation for geo
     private void validateGeometric(Float longitude, Float latitude) {
-        if ((longitude == null && latitude != null) || (longitude != null && latitude == null))
+        if ((longitude == null && latitude != null) || (longitude != null && latitude == null)) {
             throw new BadRequestException("Longitude and Latitude of %s both must be null or have value");
+        }
     }
 
     @Override
@@ -282,6 +284,83 @@ public class StepServiceImpl implements StepService {
     }
 
     @Override
+    public List<StepDto> optimizePlan(long planId) throws IOException, InterruptedException, ApiException {
+        Plan plan = planService.getPlan(planId);
+        planService.checkCurrentUserPermission(plan);
+
+        List<Step> steps = orderSteps(plan.getFirstStep());
+        if (steps.size() < 4) {
+            throw new BadRequestException("Plan must have at least 4 steps");
+        }
+
+        LinkedList<LatLng> waypoints = steps.stream()
+                .map(step -> new LatLng(step.getLatitude(), step.getLongitude()))
+                .collect(Collectors.toCollection(LinkedList::new));
+        LatLng origin = waypoints.pop();
+        LatLng destination = waypoints.removeLast();
+
+        DirectionsRoute[] routes = DirectionsApi.newRequest(new GeoApiContext.Builder().apiKey(googleMapsApiKey).build())
+                .mode(TravelMode.DRIVING)
+                .origin(origin)
+                .waypoints(waypoints.toArray(new LatLng[0]))
+                .destination(destination)
+                .departureTime(plan.getStart().toInstant(ZoneOffset.ofHours(7)))
+                .optimizeWaypoints(true)
+                .await().routes;
+
+        if (routes.length == 0) {
+            throw new BadRequestException("Cannot optimize steps");
+        }
+
+        DirectionsLeg[] legs = routes[0].legs;
+        int[] waypointOrder = routes[0].waypointOrder;
+        List<Step> optimizedSteps = new ArrayList<>(steps.size());
+
+        // Update first step
+        Step firstStep = steps.get(0);
+        firstStep.setLatitude((float) legs[0].startLocation.lat);
+        firstStep.setLongitude((float) legs[0].startLocation.lng);
+        firstStep.setNextStep(steps.get(waypointOrder[0] + 1));
+        steps.get(waypointOrder[0] + 1).setPreviousStep(firstStep);
+        optimizedSteps.add(firstStep);
+
+        // Update waypoints
+        for (int i = 0; i < waypointOrder.length; i++) {
+            Step step = steps.get(waypointOrder[i] + 1);
+            int nextIndex = (i < waypointOrder.length - 1) ? waypointOrder[i + 1] + 1 : steps.size() - 1;
+            step.setLatitude((float) legs[i + 1].startLocation.lat);
+            step.setLongitude((float) legs[i + 1].startLocation.lng);
+            step.setDuration((float) legs[i].duration.inSeconds);
+            step.setDistance((float) legs[i].distance.inMeters);
+            step.setNextStep(steps.get(nextIndex));
+            steps.get(nextIndex).setPreviousStep(step);
+            optimizedSteps.add(step);
+        }
+
+        // Update last step
+        Step lastStep = steps.get(steps.size() - 1);
+        lastStep.setLatitude((float) legs[legs.length - 1].endLocation.lat);
+        lastStep.setLongitude((float) legs[legs.length - 1].endLocation.lng);
+        lastStep.setDuration((float) legs[legs.length - 1].duration.inSeconds);
+        lastStep.setDistance((float) legs[legs.length - 1].distance.inMeters);
+        optimizedSteps.add(lastStep);
+
+        stepRepository.saveAll(optimizedSteps);
+        return optimizedSteps.stream()
+                .map(mapper.getStepMapper()::toDto)
+                .toList();
+    }
+
+    private List<Step> orderSteps(Step firstStep) {
+        List<Step> steps = new ArrayList<>();
+        Step currentStep = firstStep;
+        while (currentStep != null) {
+            steps.add(currentStep);
+            currentStep = currentStep.getNextStep();
+        }
+        return steps;
+    }
+
     public StepIdOnly getLastStepOfPlan(long planId) {
         return stepRepository.findStepByPlanIdAndNextStepIdIsNull(planId).orElse(null);
     }

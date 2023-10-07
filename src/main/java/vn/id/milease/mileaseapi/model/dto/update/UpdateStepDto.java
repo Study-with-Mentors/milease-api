@@ -8,5 +8,6 @@ import vn.id.milease.mileaseapi.model.dto.BaseDto;
 @Setter
 public class UpdateStepDto extends BaseDto {
     private Float duration;
+    private Float stopoverDuration;
     private Float distance;
 }
