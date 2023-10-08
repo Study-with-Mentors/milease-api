@@ -7,9 +7,10 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import vn.id.milease.mileaseapi.model.exception.InvalidJwtException;
 import vn.id.milease.mileaseapi.model.entity.user.User;
+import vn.id.milease.mileaseapi.model.exception.InvalidJwtException;
 import vn.id.milease.mileaseapi.model.exception.JwtExpiredException;
+import vn.id.milease.mileaseapi.repository.TravelerRepository;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
@@ -20,13 +21,16 @@ import java.util.Date;
 public class JwtTokenProvider {
     private static final int MILLISECONDS_PER_MINUTE = 60000;
 
+    private final TravelerRepository travelerRepository;
     @Value("${app.jwt.secret}")
     private String JWT_SECRET;
-
     @Value("${app.jwt.expiration:60}")
     private long JWT_EXPIRATION; // minutes
-
     private SecretKey JWT_SECRET_KEY;
+
+    public JwtTokenProvider(TravelerRepository travelerRepository) {
+        this.travelerRepository = travelerRepository;
+    }
 
     @PostConstruct
     public void postConstruct() {
@@ -36,14 +40,18 @@ public class JwtTokenProvider {
     public String generateToken(UserDetails userDetails) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION * MILLISECONDS_PER_MINUTE);
-        return Jwts.builder()
+
+        var jwtBuilder = Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("id", ((User) userDetails).getId())
                 .claim("role", ((User) userDetails).getRole())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(JWT_SECRET_KEY)
-                .compact();
+                .signWith(JWT_SECRET_KEY);
+        var traveler = travelerRepository.findById(((User) userDetails).getId());
+        traveler.ifPresent(value -> jwtBuilder.claim("traveler_status", value.getStatus().toString()));
+
+        return jwtBuilder.compact();
     }
 
     public String generateEmailVerificationToken(String email) {
