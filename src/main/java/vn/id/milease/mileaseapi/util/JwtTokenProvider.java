@@ -48,8 +48,8 @@ public class JwtTokenProvider {
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(JWT_SECRET_KEY);
-        var traveler = travelerRepository.findById(((User) userDetails).getId());
-        traveler.ifPresent(value -> jwtBuilder.claim("traveler_status", value.getStatus().toString()));
+        travelerRepository.findById(((User) userDetails).getId())
+                .ifPresent(value -> jwtBuilder.claim("traveler_status", value.getStatus().toString()));
 
         return jwtBuilder.compact();
     }
