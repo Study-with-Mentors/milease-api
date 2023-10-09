@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import vn.id.milease.mileaseapi.model.entity.Address;
 import vn.id.milease.mileaseapi.model.entity.BaseEntity;
 import vn.id.milease.mileaseapi.model.entity.Transaction;
 import vn.id.milease.mileaseapi.model.entity.step.Step;
@@ -42,6 +41,9 @@ public class Place extends BaseEntity {
     private LocalTime close;
     private String description;
     private String imageUrl;
+    private String addressString;
+    private Float longitude;
+    private Float latitude;
     @JsonIgnore
     private Long displayIndex;
     private LocalDateTime createdAt;
@@ -50,9 +52,6 @@ public class Place extends BaseEntity {
     private PlaceType type;
     @Enumerated(EnumType.STRING)
     private PlaceStatus status;
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn
-    private Address address;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "business_id")
     private Business business;
