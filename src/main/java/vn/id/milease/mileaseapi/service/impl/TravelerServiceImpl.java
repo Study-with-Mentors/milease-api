@@ -65,8 +65,12 @@ public class TravelerServiceImpl implements TravelerService {
     private void updateTravelerStatus(ArrayList<Long> ids) {
         var travelers = travelerRepository.findAllById(ids);
         for (var traveler : travelers) {
-            traveler.setStatus(TravelerStatus.PREMIUM);
-            traveler.setPremiumExpiredDate(LocalDateTime.now(AppConstant.VN_ZONE_ID).plusDays(30));
+            if (traveler.getStatus() != null && traveler.getStatus() != TravelerStatus.PREMIUM)
+                traveler.setStatus(TravelerStatus.PREMIUM);
+            var newExpiredDay = LocalDateTime.now(AppConstant.VN_ZONE_ID).plusDays(30);
+            if (traveler.getPremiumExpiredDate() != null)
+                newExpiredDay = traveler.getPremiumExpiredDate().plusDays(30);
+            traveler.setPremiumExpiredDate(newExpiredDay);
         }
         travelerRepository.saveAll(travelers);
     }
