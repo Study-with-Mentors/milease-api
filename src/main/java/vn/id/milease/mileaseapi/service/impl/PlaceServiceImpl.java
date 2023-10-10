@@ -7,8 +7,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import vn.id.milease.mileaseapi.configuration.AppConstant;
+import vn.id.milease.mileaseapi.configuration.ServiceConfiguration;
 import vn.id.milease.mileaseapi.model.dto.PageResult;
 import vn.id.milease.mileaseapi.model.dto.PlaceDto;
+import vn.id.milease.mileaseapi.model.dto.PlaceSegment;
 import vn.id.milease.mileaseapi.model.dto.create.CreatePlaceDto;
 import vn.id.milease.mileaseapi.model.dto.search.PlaceSearchDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlaceDto;
@@ -25,6 +27,10 @@ import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -36,6 +42,7 @@ import java.util.stream.Collectors;
 public class PlaceServiceImpl implements PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceMapper placeMapper;
+    private final ServiceConfiguration serviceConfiguration;
     private final Random random = new Random(Thread.currentThread().getId());
 
     @Async
@@ -125,6 +132,7 @@ public class PlaceServiceImpl implements PlaceService {
         throw new ConflictException(Place.class, ActionConflict.CREATE, "This is our fault, cannot create displayIndex");
     }
 
+    @Override
     public Place getPlace(long id) {
         return placeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Place.class, id));
@@ -149,12 +157,35 @@ public class PlaceServiceImpl implements PlaceService {
             if (displayIndexAmountToAdd < amountToMinValue) {
                 place.setDisplayIndex(Long.MIN_VALUE);
                 place.setStatus(PlaceStatus.UNAVAILABLE);
-            } else if (amountToMaxValue < displayIndexAmountToAdd && place.getDisplayIndex() != Long.MAX_VALUE) {
+            } else if (amountToMaxValue < displayIndexAmountToAdd && place.getDisplayIndex() != Long.MAX_VALUE)
                 place.setDisplayIndex(Long.MAX_VALUE);
-            } else
+            else
                 place.setDisplayIndex(place.getDisplayIndex() + displayIndexAmountToAdd);
         }
         placeRepository.saveAll(validPlaces);
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public List<PlaceDto> suggestPlaces(PlaceSegment place1, PlaceSegment place2, int placesSize, List<Long> selectedPlaces) {
+        var places = serviceConfiguration.placeSegmentList();
+        selectedPlaces.forEach(places::remove);
+        var resultMap = new HashMap<Long, Double>();
+        for (var place : places.entrySet()) {
+            double distance = calculateDistance(place1, place2, place.getValue());
+            resultMap.put(place.getKey(), distance);
+        }
+        resultMap = resultMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        var searchDto = new PlaceSearchDto();
+        searchDto.setIds(resultMap.keySet().stream().limit(placesSize).toList());
+        return this.getPlaces(searchDto).getValues();
+    }
+
+    private double calculateDistance(PlaceSegment place1, PlaceSegment place2, PlaceSegment target) {
+        double slope = (place2.getLongitude() - place1.getLongitude()) / (place2.getLatitude() - place1.getLatitude());
+        double yIntercept = place2.getLongitude() - slope * place2.getLatitude();
+        return Math.abs(target.getLongitude() - slope * place2.getLatitude() - yIntercept) / Math.sqrt(slope * slope + 1);
     }
 }
