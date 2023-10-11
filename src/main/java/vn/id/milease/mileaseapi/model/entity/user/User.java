@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,6 +38,9 @@ public class User extends BaseEntity implements UserDetails {
     private String email;
     private String password;
     private String imageUrl;
+
+    @CreatedDate
+    private LocalDateTime createdTime;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;

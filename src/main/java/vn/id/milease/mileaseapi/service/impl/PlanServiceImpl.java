@@ -80,6 +80,11 @@ public class PlanServiceImpl implements PlanService {
     }
 
     @Override
+    public long countPlan(PlanSearchDto searchDto) {
+        return planRepository.countByStartBetween(searchDto.getLowerDate(), searchDto.getUpperDate());
+    }
+
+    @Override
     public void deletePlan(long id) {
         Plan entity = getPlan(id);
         checkCurrentUserPermission(entity);

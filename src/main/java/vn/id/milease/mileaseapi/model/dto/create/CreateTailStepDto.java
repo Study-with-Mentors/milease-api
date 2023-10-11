@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import vn.id.milease.mileaseapi.model.entity.step.StepType;
 
+import javax.validation.constraints.NotEmpty;
+
 @Getter
 @Setter
 public class CreateTailStepDto {
@@ -24,6 +26,8 @@ public class CreateTailStepDto {
     private Float distance;
     private Float longitude;
     private Float latitude;
+    @NotEmpty
     private String placeName;
+    @NotEmpty
     private String addressString;
 }
