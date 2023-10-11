@@ -179,7 +179,7 @@ public class PlaceServiceImpl implements PlaceService {
                 .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         var searchDto = new PlaceSearchDto();
-        searchDto.setIds(resultMap.keySet().stream().limit(placesSize).toList());
+        searchDto.setIds(resultMap.keySet().stream().skip((long) resultMap.size() - placesSize).toList());
         return this.getPlaces(searchDto).getValues();
     }
 
