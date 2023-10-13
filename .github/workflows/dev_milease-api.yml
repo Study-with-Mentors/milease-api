@@ -5,8 +5,8 @@ name: Build and deploy JAR app to Azure Web App - milease-api
 
 on:
   push:
-    paths:
-      - 'v*.*.*'
+    branches:
+      - dev
   workflow_dispatch:
 
 jobs:
@@ -14,19 +14,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
       - name: Set up Java version
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v1
         with:
           java-version: '17'
-          distribution: 'zulu'
 
       - name: Build with Maven
         run: mvn clean install
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: java-app
           path: '${{ github.workspace }}/target/*.jar'
@@ -40,7 +39,7 @@ jobs:
     
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v2
         with:
           name: java-app
 
@@ -50,5 +49,5 @@ jobs:
         with:
           app-name: 'milease-api'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9A83EABAA60A4688AF2811746BCBCABD }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1FCBDA74F66B49A28D80C10D4DA8D715 }}
           package: '*.jar'
