@@ -15,11 +15,11 @@ public class PlanSearchDto extends BaseSearchDto {
     /**
      * result will contain plan that have <code>startDate</code> > lowerDate
      */
-    private LocalDateTime lowerDate;
+    private LocalDateTime lowerDate = LocalDateTime.of(1990, 1, 1, 1, 1, 1);
     /**
      * result will contain plan that have <code>endDate</code> < endDate
      */
-    private LocalDateTime upperDate;
+    private LocalDateTime upperDate = LocalDateTime.of(3000, 1, 1, 1, 1, 1);
     private PlanProperty orderBy = PlanProperty.START;
     // TODO [Duy, P2] Add province after the entity has add field province
 

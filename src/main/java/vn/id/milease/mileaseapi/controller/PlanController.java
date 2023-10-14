@@ -27,7 +27,6 @@ import vn.id.milease.mileaseapi.service.StepService;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -50,13 +49,6 @@ public class PlanController {
 
     @GetMapping("/count")
     public long countPlan(PlanSearchDto searchDto) {
-        if (searchDto.getLowerDate() == null) {
-            searchDto.setLowerDate(LocalDateTime.of(1990, 1, 1, 1, 1, 1));
-        }
-        if (searchDto.getUpperDate() == null) {
-            searchDto.setUpperDate(LocalDateTime.of(3000, 1, 1, 1, 1, 1));
-        }
-
         return planService.countPlan(searchDto);
     }
 
