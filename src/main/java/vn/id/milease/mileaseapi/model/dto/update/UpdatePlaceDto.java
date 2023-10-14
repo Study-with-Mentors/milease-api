@@ -23,6 +23,8 @@ public class UpdatePlaceDto extends BaseDto {
     @Nullable
     private String description;
     private float averageDuration;
+    private Float longitude;
+    private Float latitude;
     @Nullable
     private PlaceType type;
     @Nullable
