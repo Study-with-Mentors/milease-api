@@ -20,6 +20,8 @@ public class CreatePlaceDto {
     private PlaceType type = PlaceType.ENTERTAINMENT;
     private PlaceStatus status;
     private String imageUrl;
+    private Float longitude;
+    private Float latitude;
     private long addressId;
     private long businessId;
 }

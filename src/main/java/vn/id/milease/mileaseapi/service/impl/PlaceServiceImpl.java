@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import vn.id.milease.mileaseapi.configuration.AppConstant;
 import vn.id.milease.mileaseapi.model.dto.PageResult;
 import vn.id.milease.mileaseapi.model.dto.PlaceDto;
+import vn.id.milease.mileaseapi.model.dto.PlaceSegment;
 import vn.id.milease.mileaseapi.model.dto.create.CreatePlaceDto;
 import vn.id.milease.mileaseapi.model.dto.search.PlaceSearchDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlaceDto;
@@ -21,10 +22,15 @@ import vn.id.milease.mileaseapi.model.exception.NotFoundException;
 import vn.id.milease.mileaseapi.repository.PlaceRepository;
 import vn.id.milease.mileaseapi.service.PlaceService;
 import vn.id.milease.mileaseapi.service.util.ServiceUtil;
+import vn.id.milease.mileaseapi.util.ServicePreloadData;
 import vn.id.milease.mileaseapi.util.mapper.PlaceMapper;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -36,6 +42,7 @@ import java.util.stream.Collectors;
 public class PlaceServiceImpl implements PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceMapper placeMapper;
+    private final ServicePreloadData serviceConfiguration;
     private final Random random = new Random(Thread.currentThread().getId());
 
     @Async
@@ -65,6 +72,13 @@ public class PlaceServiceImpl implements PlaceService {
         entityToAdd.setDisplayIndex(0L);
         entityToAdd.setCreatedAt(LocalDateTime.now(AppConstant.VN_ZONE_ID));
         entityToAdd = placeRepository.save(entityToAdd);
+        if (entityToAdd.getLatitude() != null && entityToAdd.getLongitude() != null)
+            ServicePreloadData.placeSegmentMap.put(
+                    entityToAdd.getId(),
+                    PlaceSegment.builder()
+                            .id(entityToAdd.getId())
+                            .longitude(entityToAdd.getLongitude())
+                            .latitude(entityToAdd.getLatitude()).build());
         return placeMapper.toDto(entityToAdd);
     }
 
@@ -75,7 +89,8 @@ public class PlaceServiceImpl implements PlaceService {
             throw new BadRequestException("Upper price or Lower price cannot be negative");
         if (dto.getPriceUpper() < dto.getPriceLower())
             throw new BadRequestException("Upper price cannot be smaller than Lower price");
-
+        if ((dto.getLongitude() != null && dto.getLatitude() == null) || (dto.getLongitude() == null && dto.getLatitude() != null))
+            throw new BadRequestException("Longitude and latitude both must be or assigned value");
     }
 
     //TODO [Dat, P1]: Validating address and business
@@ -87,6 +102,15 @@ public class PlaceServiceImpl implements PlaceService {
             throw new ConflictException(Place.class, ActionConflict.UPDATE, "Cannot update place that has been removed");
         placeMapper.toEntity(dto, entityToUpdate);
         entityToUpdate = placeRepository.save(entityToUpdate);
+        if (entityToUpdate.getLatitude() != null && entityToUpdate.getLongitude() != null)
+            ServicePreloadData.placeSegmentMap.put(
+                    entityToUpdate.getId(),
+                    PlaceSegment.builder()
+                            .id(entityToUpdate.getId())
+                            .longitude(entityToUpdate.getLongitude())
+                            .latitude(entityToUpdate.getLatitude()).build());
+        if (entityToUpdate.getLatitude() == null || entityToUpdate.getLongitude() == null)
+            ServicePreloadData.placeSegmentMap.remove(entityToUpdate.getId());
         return placeMapper.toDto(entityToUpdate);
     }
 
@@ -99,6 +123,7 @@ public class PlaceServiceImpl implements PlaceService {
             throw new NotFoundException(Place.class, id);
         entityToDelete.setStatus(PlaceStatus.REMOVE);
         placeRepository.save(entityToDelete);
+        ServicePreloadData.placeSegmentMap.remove(entityToDelete.getId());
     }
 
     @Override
@@ -125,6 +150,7 @@ public class PlaceServiceImpl implements PlaceService {
         throw new ConflictException(Place.class, ActionConflict.CREATE, "This is our fault, cannot create displayIndex");
     }
 
+    @Override
     public Place getPlace(long id) {
         return placeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(Place.class, id));
@@ -149,12 +175,36 @@ public class PlaceServiceImpl implements PlaceService {
             if (displayIndexAmountToAdd < amountToMinValue) {
                 place.setDisplayIndex(Long.MIN_VALUE);
                 place.setStatus(PlaceStatus.UNAVAILABLE);
-            } else if (amountToMaxValue < displayIndexAmountToAdd && place.getDisplayIndex() != Long.MAX_VALUE) {
+            } else if (amountToMaxValue < displayIndexAmountToAdd && place.getDisplayIndex() != Long.MAX_VALUE)
                 place.setDisplayIndex(Long.MAX_VALUE);
-            } else
+            else
                 place.setDisplayIndex(place.getDisplayIndex() + displayIndexAmountToAdd);
         }
         placeRepository.saveAll(validPlaces);
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public List<PlaceDto> suggestPlaces(PlaceSegment place1, PlaceSegment place2, int placesSize, List<Long> selectedPlaces) {
+        var places = serviceConfiguration.placeSegmentList();
+        if (selectedPlaces != null && !selectedPlaces.isEmpty())
+            selectedPlaces.forEach(places::remove);
+        var resultMap = new HashMap<Long, Double>();
+        for (var place : places.entrySet()) {
+            double distance = calculateDistance(place1, place2, place.getValue());
+            resultMap.put(place.getKey(), distance);
+        }
+        resultMap = resultMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        var searchDto = new PlaceSearchDto();
+        searchDto.setIds(resultMap.keySet().stream().skip((long) resultMap.size() - placesSize).toList());
+        return this.getPlaces(searchDto).getValues();
+    }
+
+    private double calculateDistance(PlaceSegment place1, PlaceSegment place2, PlaceSegment target) {
+        double slope = (place2.getLongitude() - place1.getLongitude()) / (place2.getLatitude() - place1.getLatitude());
+        double yIntercept = place2.getLongitude() - slope * place2.getLatitude();
+        return Math.abs(target.getLongitude() - slope * place2.getLatitude() - yIntercept) / Math.sqrt(slope * slope + 1);
     }
 }

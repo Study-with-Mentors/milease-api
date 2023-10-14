@@ -34,6 +34,8 @@ public class PlaceMapper implements Mapper<Place, PlaceDto, CreatePlaceDto, Upda
     @Override
     public Place toEntity(CreatePlaceDto dto) {
         return Place.builder()
+                .longitude(dto.getLongitude())
+                .latitude(dto.getLatitude())
                 .averageDuration(dto.getAverageDuration())
                 .close(dto.getClose())
                 .open(dto.getClose())
@@ -57,14 +59,17 @@ public class PlaceMapper implements Mapper<Place, PlaceDto, CreatePlaceDto, Upda
             existed.setType(dto.getType());
         if (!Objects.isNull(dto.getOpen())) {
             existed.setOpen(dto.getOpen());
-            if (!Objects.isNull(dto.getClose()) && !dto.getClose().isBefore(dto.getOpen())) {
+            if (!Objects.isNull(dto.getClose()) && !dto.getClose().isBefore(dto.getOpen()))
                 existed.setClose(dto.getClose());
-            }
         }
         if (dto.getPriceLower() > 0 && dto.getPriceUpper() > dto.getPriceLower()) {
             existed.setPriceLower(dto.getPriceLower());
             existed.setPriceUpper(dto.getPriceUpper());
         }
+        if (!Objects.isNull(dto.getLongitude()))
+            existed.setLongitude(dto.getLatitude());
+        if (!Objects.isNull(dto.getLatitude()))
+            existed.setLatitude(dto.getLatitude());
         if (!Objects.isNull(dto.getImageUrl()))
             existed.setImageUrl(dto.getImageUrl());
     }
