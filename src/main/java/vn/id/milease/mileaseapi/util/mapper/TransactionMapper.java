@@ -6,11 +6,10 @@ import vn.id.milease.mileaseapi.model.dto.TransactionDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateTransactionDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdateTransactionDto;
 import vn.id.milease.mileaseapi.model.entity.Transaction;
-import vn.id.milease.mileaseapi.model.entity.place.Place;
 
 @Component
 @RequiredArgsConstructor
-public class TransactionMapper implements Mapper<Transaction, TransactionDto, CreateTransactionDto, UpdateTransactionDto>{
+public class TransactionMapper implements Mapper<Transaction, TransactionDto, CreateTransactionDto, UpdateTransactionDto> {
     private final PlaceMapper placeMapper;
 
     @Override
@@ -30,7 +29,7 @@ public class TransactionMapper implements Mapper<Transaction, TransactionDto, Cr
         var resultBuilder = TransactionDto.builder()
                 .amount(entity.getAmount())
                 .createdAt(entity.getCreatedAt());
-        if(entity.getPlace() != null)
+        if (entity.getPlace() != null)
             resultBuilder.place(placeMapper.toDto(entity.getPlace()));
         var result = resultBuilder.build();
         result.setId(entity.getId());

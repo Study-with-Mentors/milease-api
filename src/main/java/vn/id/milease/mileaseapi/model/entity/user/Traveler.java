@@ -46,4 +46,8 @@ public class Traveler {
 
     @Enumerated(EnumType.STRING)
     private TravelerStatus status;
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }

@@ -2,6 +2,7 @@ package vn.id.milease.mileaseapi.controller;
 
 import com.google.maps.errors.ApiException;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,12 +18,14 @@ import vn.id.milease.mileaseapi.model.dto.PlanDto;
 import vn.id.milease.mileaseapi.model.dto.StepDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreatePlanDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateStepDto;
+import vn.id.milease.mileaseapi.model.dto.create.CreateStepFromPlaceDto;
 import vn.id.milease.mileaseapi.model.dto.create.CreateTailStepDto;
 import vn.id.milease.mileaseapi.model.dto.search.PlanSearchDto;
 import vn.id.milease.mileaseapi.model.dto.update.UpdatePlanDto;
 import vn.id.milease.mileaseapi.service.PlanService;
 import vn.id.milease.mileaseapi.service.StepService;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
@@ -32,6 +35,7 @@ import java.util.List;
 public class PlanController {
     private final PlanService planService;
     private final StepService stepService;
+    private final ModelMapper mapper;
 
     @GetMapping("/{id}")
     public PlanDto getPlan(@PathVariable long id) {
@@ -43,19 +47,33 @@ public class PlanController {
         return planService.getPlans(searchDto);
     }
 
+    @GetMapping("/count")
+    public long countPlan(PlanSearchDto searchDto) {
+        return planService.countPlan(searchDto);
+    }
+
     @GetMapping("/{id}/steps")
     public List<StepDto> getPlanSteps(@PathVariable long id) {
         return stepService.getStepByPlanId(id);
     }
 
     @PostMapping("/{id}/steps")
-    public StepDto addStepToPlan(@PathVariable long id, @RequestBody CreateStepDto dto) {
+    public StepDto addStepToPlan(@PathVariable long id, @RequestBody @Valid CreateStepDto dto) {
         dto.setPlanId(id);
+        dto.setPlaceId(0);
+        return stepService.addStep(dto);
+    }
+
+    @PostMapping("/{id}/steps/places/{placeId}")
+    public StepDto addStepToPlanFromPlace(@PathVariable long id, @PathVariable long placeId, @RequestBody @Valid CreateStepFromPlaceDto createDto) {
+        CreateStepDto dto = mapper.map(createDto, CreateStepDto.class);
+        dto.setPlanId(id);
+        dto.setPlaceId(placeId);
         return stepService.addStep(dto);
     }
 
     @PostMapping("/{id}/steps/last")
-    public StepDto addStepToPlanTail(@PathVariable long id, @RequestBody CreateTailStepDto dto) {
+    public StepDto addStepToPlanTail(@PathVariable long id, @RequestBody @Valid CreateTailStepDto dto) {
         dto.setPlanId(id);
         return stepService.addTailStep(dto);
     }

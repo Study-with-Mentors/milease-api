@@ -23,6 +23,8 @@ public interface PlanService {
 
     PlanIdOnly getPlanIdOnly(long id);
 
+    long countPlan(PlanSearchDto searchDto);
+
     void checkCurrentUserPermission(Plan plan);
 
     void checkCurrentUserPermission(PlanIdOnly plan);

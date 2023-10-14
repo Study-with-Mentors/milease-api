@@ -7,6 +7,7 @@ import vn.id.milease.mileaseapi.model.dto.update.UpdateTransactionDto;
 import java.util.concurrent.CompletableFuture;
 
 public interface TransactionService {
+
     CompletableFuture<Long> createTransactionAsync(CreateTransactionDto dto);
 
     CompletableFuture<TransactionDto> getTransactionByIdAsync(long id);

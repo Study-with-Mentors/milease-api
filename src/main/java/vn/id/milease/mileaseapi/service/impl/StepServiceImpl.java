@@ -34,7 +34,6 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -174,22 +173,31 @@ public class StepServiceImpl implements StepService {
     }
 
     //TODO [Dat, P4]: More validation for geo
-    private void validateGeometric(Float longitude, Float latitude) {
-        if ((longitude == null && latitude != null) || (longitude != null && latitude == null)) {
+    private void validateGeometric(CreateStepDto dto) {
+        if (!((dto.getLongitude() != null && dto.getLatitude() != null) || dto.getPlaceId() != 0)) {
             throw new BadRequestException("Longitude and Latitude of %s both must be null or have value");
         }
     }
 
     @Override
     public StepDto addStep(CreateStepDto dto) {
-        validateGeometric(dto.getLongitude(), dto.getLatitude());
+        validateGeometric(dto);
 
-        Place place = placeRepository.findById(dto.getPlaceId()).orElse(null);
+        Place place = null;
+        if (dto.getPlaceId() != 0) {
+            place = placeRepository.findById(dto.getPlaceId()).orElse(null);
+        }
         PlanIdOnly plan = planService.getPlanIdOnly(dto.getPlanId());
         planService.checkCurrentUserPermission(plan);
 
         Step stepEntity = mapper.getStepMapper().toEntity(dto);
-        stepEntity.setPlace(place);
+        if (place != null) {
+            stepEntity.setLongitude(place.getLongitude());
+            stepEntity.setLatitude(place.getLatitude());
+            stepEntity.setAddressString(place.getAddressString());
+            stepEntity.setPlaceName(place.getName());
+            stepEntity.setPlace(place);
+        }
         stepEntity.setId(0L);
         stepEntity = stepRepository.save(stepEntity);
         StepIdOnly step = getStepIdOnly(stepEntity.getId());
