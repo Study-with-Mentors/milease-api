@@ -22,6 +22,8 @@ public class PlaceMapper implements Mapper<Place, PlaceDto, CreatePlaceDto, Upda
                 .type(entity.getType())
                 .close(entity.getClose())
                 .open(entity.getOpen())
+                .longitude(entity.getLongitude())
+                .latitude(entity.getLatitude())
                 .priceLower(entity.getPriceLower())
                 .priceUpper(entity.getPriceUpper())
                 .status(entity.getStatus())
