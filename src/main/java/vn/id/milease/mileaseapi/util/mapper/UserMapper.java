@@ -13,7 +13,7 @@ public class UserMapper {
                 .createdTime(user.getCreatedTime())
                 .fullName(user.getTraveler().getFullName())
                 .imageUrl(user.getImageUrl())
-                .isPremium(user.getTraveler().getPremiumExpiredDate().isAfter(LocalDateTime.now()))
+                .isPremium(user.getTraveler().getPremiumExpiredDate() != null && user.getTraveler().getPremiumExpiredDate().isAfter(LocalDateTime.now()))
                 .id(user.getId()).build();
     }
 }
