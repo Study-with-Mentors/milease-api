@@ -3,6 +3,7 @@ package vn.id.milease.mileaseapi.model.dto.search;
 import de.mobiuscode.nameof.Name;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import vn.id.milease.mileaseapi.model.entity.user.User;
 
 import javax.annotation.Nullable;
@@ -15,7 +16,9 @@ import java.util.function.Function;
 public class UserSearchDto extends BaseSearchDto {
     @Nullable
     private UserSearchDto.UserProperty orderBy;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime lowerDate = LocalDateTime.of(1999, 1, 1, 1, 1, 1);
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime upperDate = LocalDateTime.of(3000, 1, 1, 1, 1, 1);
 
     @Override
