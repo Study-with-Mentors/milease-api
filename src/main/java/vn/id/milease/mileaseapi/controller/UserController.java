@@ -24,12 +24,12 @@ public class UserController {
     }
 
     @GetMapping("/count")
-    public int countUser(@RequestBody UserSearchDto searchDto) {
+    public int countUser(UserSearchDto searchDto) {
         return userService.countUser(searchDto);
     }
 
     @GetMapping("/premium/count")
-    public int countPremiumUser(@RequestBody UserSearchDto searchDto) {
+    public int countPremiumUser(UserSearchDto searchDto) {
         return userService.countPremiumUser(searchDto);
     }
 }
