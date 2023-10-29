@@ -17,8 +17,6 @@ public class UserController {
 
     @GetMapping
     public PageResult<TravelerDto> getUser(UserSearchDto searchDto) {
-        searchDto.setPage(0);
-        searchDto.setPageSize(5);
         return userService.getUsers(searchDto);
     }
 
