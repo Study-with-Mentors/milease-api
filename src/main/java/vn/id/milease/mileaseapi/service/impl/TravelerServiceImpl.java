@@ -9,6 +9,7 @@ import vn.id.milease.mileaseapi.model.dto.create.CreateTravelerTransactionDto;
 import vn.id.milease.mileaseapi.model.entity.user.Traveler;
 import vn.id.milease.mileaseapi.model.entity.user.TravelerStatus;
 import vn.id.milease.mileaseapi.model.entity.user.TravelerTransaction;
+import vn.id.milease.mileaseapi.model.entity.user.UserRole;
 import vn.id.milease.mileaseapi.model.exception.UnauthorizedException;
 import vn.id.milease.mileaseapi.repository.TravelerRepository;
 import vn.id.milease.mileaseapi.repository.TravelerTransactionRepository;
@@ -34,6 +35,9 @@ public class TravelerServiceImpl implements TravelerService {
     @Override
     public List<TravelerTransactionDto> getCurrentTravelerTransaction() {
         var traveler = getCurrentTraveler();
+        if (traveler.getUser() != null && traveler.getUser().getRole() == UserRole.ADMIN) {
+            return transactionRepository.findAll().stream().map(TravelerTransactionMapper::toDto).toList();
+        }
         var transactions = transactionRepository.findAllByTraveler(traveler);
         return transactions.stream().map(TravelerTransactionMapper::toDto).toList();
     }
@@ -51,7 +55,7 @@ public class TravelerServiceImpl implements TravelerService {
         entityToAdd = transactionRepository.save(entityToAdd);
         travelerRepository.save(traveler);
 
-        return ServiceUtil.generatePaymentQr(AppConstant.BANK_ID, AppConstant.BANK_NUMBER, Math.round(entityToAdd.getAmount()), "Transaction id: " + entityToAdd.getId());
+        return ServiceUtil.generatePaymentQr(AppConstant.BANK_ID, AppConstant.BANK_NUMBER, Math.round(entityToAdd.getAmount()), "Milease TravelerID: " + traveler.getId() + ", Transaction id: " + entityToAdd.getId());
     }
 
     @Override
