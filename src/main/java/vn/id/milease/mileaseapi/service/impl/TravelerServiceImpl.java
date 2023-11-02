@@ -1,6 +1,7 @@
 package vn.id.milease.mileaseapi.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import vn.id.milease.mileaseapi.configuration.AppConstant;
@@ -31,6 +32,10 @@ public class TravelerServiceImpl implements TravelerService {
     private final UserService userService;
     private final TravelerTransactionRepository transactionRepository;
     private final TravelerRepository travelerRepository;
+    @Value("${app.bank.id}")
+    private String bankId;
+    @Value("${app.bank.number}")
+    private String bankNumber;
 
     @Override
     public List<TravelerTransactionDto> getCurrentTravelerTransaction() {
@@ -55,7 +60,7 @@ public class TravelerServiceImpl implements TravelerService {
         entityToAdd = transactionRepository.save(entityToAdd);
         travelerRepository.save(traveler);
 
-        return ServiceUtil.generatePaymentQr(AppConstant.BANK_ID, AppConstant.BANK_NUMBER, Math.round(entityToAdd.getAmount()), "Milease TravelerID: " + traveler.getId() + ", Transaction id: " + entityToAdd.getId());
+        return ServiceUtil.generatePaymentQr(bankId, bankNumber, Math.round(entityToAdd.getAmount()), "Milease TravelerID: " + traveler.getId() + ", Transaction id: " + entityToAdd.getId());
     }
 
     @Override
