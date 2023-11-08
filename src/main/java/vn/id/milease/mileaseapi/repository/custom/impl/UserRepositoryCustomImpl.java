@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import vn.id.milease.mileaseapi.model.dto.search.UserSearchDto;
 import vn.id.milease.mileaseapi.model.entity.user.QTraveler;
 import vn.id.milease.mileaseapi.model.entity.user.QUser;
-import vn.id.milease.mileaseapi.model.entity.user.TravelerStatus;
 import vn.id.milease.mileaseapi.repository.custom.UserRepositoryCustom;
 
 import javax.persistence.EntityManager;
@@ -25,7 +24,6 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         QTraveler traveler = QTraveler.traveler;
         BooleanBuilder builder = new BooleanBuilder();
         LocalDateTime now = LocalDateTime.now();
-        builder.and(traveler.status.eq(TravelerStatus.PREMIUM));
         builder.and(traveler.premiumExpiredDate.after(now));
         if (lowerDate != null) {
             builder.and(traveler.premiumExpiredDate.after(lowerDate));
