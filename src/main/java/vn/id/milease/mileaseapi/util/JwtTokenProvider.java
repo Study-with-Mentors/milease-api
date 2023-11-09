@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import vn.id.milease.mileaseapi.model.entity.user.Traveler;
 import vn.id.milease.mileaseapi.model.entity.user.User;
 import vn.id.milease.mileaseapi.model.exception.InvalidJwtException;
 import vn.id.milease.mileaseapi.model.exception.JwtExpiredException;
@@ -15,7 +16,9 @@ import vn.id.milease.mileaseapi.repository.TravelerRepository;
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Optional;
 
 @Component
 public class JwtTokenProvider {
@@ -48,8 +51,16 @@ public class JwtTokenProvider {
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(JWT_SECRET_KEY);
-        travelerRepository.findById(((User) userDetails).getId())
-                .ifPresent(value -> jwtBuilder.claim("traveler_status", value.getStatus().toString()));
+
+        Optional<Traveler> travelerOpt = travelerRepository.findById(((User) userDetails).getId());
+        String status = "NORMAL";
+        if (travelerOpt.isPresent()) {
+            Traveler traveler = travelerOpt.get();
+            if (traveler.getPremiumExpiredDate() != null && traveler.getPremiumExpiredDate().isAfter(LocalDateTime.now())) {
+                status = "PREMIUM";
+            }
+        }
+        jwtBuilder.claim("traveler_status", status);
 
         return jwtBuilder.compact();
     }
