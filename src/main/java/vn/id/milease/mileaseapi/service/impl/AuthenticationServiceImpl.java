@@ -23,6 +23,7 @@ import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 
 @Service
@@ -95,6 +96,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .imageUrl((String) payload.get("picture"))
                 .role(UserRole.TRAVELLER)
                 .status(UserStatus.ACTIVE)
+                .createdTime(LocalDateTime.now())
                 .build();
         traveler.setUser(user);
         return userRepository.save(user);
